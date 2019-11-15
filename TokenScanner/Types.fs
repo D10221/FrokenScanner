@@ -8,3 +8,5 @@ type Next = bool -> char option
 /// Creeates Peek And Next, holds index state
 ///</summary>
 type Queue =  string -> Next
+
+type Subscriber = List<Option<char>> -> unit
