@@ -9,15 +9,23 @@ namespace ScannerCsharptest
     {
         [TestMethod]
         public void ItDoesntCrash()
-        {            
+        {
             var result = Scan("");
         }
         [TestMethod]
         public void Basics()
-        {            
+        {
             var results = Scan("a+b");
             AreEqual(results[0], "a");
             AreEqual(results[1], "+");
+            AreEqual(results[2], "b");
+        }
+        [TestMethod]
+        public void Compunds()
+        {
+            var results = Scan("a+=b");
+            AreEqual(results[0], "a");
+            AreEqual(results[1], "+=");
             AreEqual(results[2], "b");
         }
     }

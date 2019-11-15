@@ -11,16 +11,16 @@ let isSpace (o: Option<char>) = o <> None && Regex("\s+").IsMatch(o.Value.ToStri
 ///<summary>
 ///
 ///<summary>
-let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) (x: Option<char>) =
-    let scan = fun () -> Scanner subscriber _next (_next (true))
+let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) =
+    let scan = fun () -> Scanner subscriber _next 
     let peek = fun () -> _next (false) // don't advance & return next
     let next = fun () -> _next (true) // advance & return current
+    let x = next()
     match x with
     | Some('=') ->
         match peek() with
         | Some('=')
         | Some('>') ->
-            ignore <| next()
             subscriber
                 ([ x
                    next() ])
@@ -31,7 +31,6 @@ let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) (x: Optio
         match peek() with
         | Some('=')
         | Some('+') ->
-            ignore <| next()
             subscriber
                 ([ x
                    next() ])
@@ -99,8 +98,7 @@ let Scan(input: string) =
     let scan = Scanner subscriber
 
     input
-    |> (Queue)
-    |> Starter
-    ||> scan
+    |> Queue
+    |> scan
     accumulator
 // |> List.map(fun list-> List.fold(fun a-> fun b -> a + b.ToString()) "" list )
