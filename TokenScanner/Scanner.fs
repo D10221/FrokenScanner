@@ -1,10 +1,6 @@
-﻿namespace TokenScanner
-
-open Queue
-open Scan
-
-module Scanner =
-
+﻿module TokenScanner.Scanner
+open TokenScanner.Scan
+open TokenScanner.Queue
     let Scan args =
         args
         |> Queue
