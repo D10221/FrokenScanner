@@ -18,7 +18,7 @@ namespace ScannerCsharptest
             var results = Scan("a+b");
             AreEqual(results[0], "a");
             AreEqual(results[1], "+");
-            AreEqual(results[2], "B");
+            AreEqual(results[2], "b");
         }
     }
 }
