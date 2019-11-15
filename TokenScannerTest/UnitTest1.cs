@@ -2,15 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ScannerCsharptest
 {
-    using static TokenScanner.Scanner;
-    [TestClass]
-    public class UnitTest1
+  [TestClass]
+  public class TokenScannerTests
+  {
+    [TestMethod]
+    public void ItDoesntCrash()
     {
-        [TestMethod]
-        public void TestMethod1()
-        {            
-            // Microsoft.FSharp.Collections.FSharpList<Microsoft.FSharp.Core.FSharpOption<string>>
-            var x = Scan("SSSSS"); 
-        }
+      // Microsoft.FSharp.Collections.FSharpList<Microsoft.FSharp.Core.FSharpOption<string>>
+      var scanner = TokenScanner.Scanner.Scanner();
+      var scanned = scanner.Invoke("");
     }
+  }
 }
