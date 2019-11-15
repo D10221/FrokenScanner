@@ -1,5 +1,4 @@
 using Microsoft.FSharp.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ScannerCsharptest
 {
@@ -9,8 +8,11 @@ namespace ScannerCsharptest
         {
             return func.Invoke(null);
         }
-        public static bool IsNone<T>(this FSharpOption<T> option){
+        public static bool IsNone<T>(FSharpOption<T> option){
           return option == null || Equals(option.Value, default);
+        }
+        public static T Value<T>(FSharpOption<T> option){
+          return IsNone(option) ? default : option.Value;
         }
     }
 }

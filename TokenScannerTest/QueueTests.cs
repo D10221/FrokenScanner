@@ -6,7 +6,7 @@ namespace ScannerCsharptest
 {
     using static TokenScanner.Queue;
     using static Assert;
-
+    using static FSharpeyExtensions;
     [TestClass]
     public class QueueTests
     {
@@ -55,8 +55,8 @@ namespace ScannerCsharptest
             AreEqual(peek.Invoke().Value, 'a');//index never moved, again!
             AreEqual(next.Invoke().Value, 'a');//moved, present is 'a'
             // Its seems Fsharp returns NUll
-            IsTrue(next.Invoke().IsNone());
-            IsTrue(peek.Invoke().IsNone());
+            IsTrue(IsNone(next.Invoke()));
+            IsTrue(IsNone(peek.Invoke()));
         }
         ///<summary>
         /// Doesn't throw
@@ -74,9 +74,9 @@ namespace ScannerCsharptest
             AreEqual(peek.Invoke().Value, 'b');
             AreEqual(next.Invoke().Value, 'b');
 
-            IsTrue(next.Invoke().IsNone());
+            IsTrue(IsNone(next.Invoke()));
             AreEqual(peek.Invoke(), null);
-            IsTrue(peek.Invoke().IsNone());
+            IsTrue(IsNone(peek.Invoke()));
         }
     }
 }

@@ -4,15 +4,21 @@ namespace ScannerCsharptest
 {
     using static TokenScanner.Scanner;
     using static Assert;
-    using static FSharpeyExtensions;
     [TestClass]
     public class ScannerTests
     {
         [TestMethod]
         public void ItDoesntCrash()
-        {
-            // Microsoft.FSharp.Collections.FSharpList<Microsoft.FSharp.Core.FSharpOption<string>>
+        {            
             var result = Scan("");
+        }
+        [TestMethod]
+        public void Basics()
+        {            
+            var results = Scan("a+b");
+            AreEqual(results[0], "a");
+            AreEqual(results[1], "+");
+            AreEqual(results[2], "B");
         }
     }
 }

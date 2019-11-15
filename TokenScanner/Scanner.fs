@@ -4,95 +4,85 @@ open System.Text.RegularExpressions
 open Queue
 open Types
 
-let join a = fun b -> a + b
+let isWord (o: Option<char>) = o <> None && Regex("\w+").IsMatch(o.Value.ToString())
+let isDigit (o: Option<char>) = o <> None && Regex("\d+").IsMatch(o.Value.ToString())
+let isSpace (o: Option<char>) = o <> None && Regex("\s+").IsMatch(o.Value.ToString())
 
-let f = printf
-
-let isWord (o: char option) = o <> None && Regex("\w+").IsMatch(o.Value.ToString())
-let isDigit (o: char option) = o <> None && Regex("\d+").IsMatch(o.Value.ToString())
-let isSpace (o: char option) = o <> None && Regex("\s+").IsMatch(o.Value.ToString())
+let Result(list: List<Option<char>>) = 
+    list
+    |> (List.fold (fun acc o -> acc + o.Value.ToString()) "")    
+    // |> (List.map (fun o -> o.Value))     
 
 ///<summary>
-/// Scan builder
+///
 ///<summary>
-let Scanner (_next: Next) (add: List<Option<char>> -> unit) =
-    let rec scan (x: Option<char>) =
-        let next = fun () -> _next (true)
-        let peek = fun () -> _next (false)
-        let scanNext = fun () -> scan (next())
-        match x with
-        | Some('=') ->
-            match peek() with
-            | Some('=')
-            | Some('>') ->
-                ignore <| next()
-                add
-                    ([ x
-                       next() ])
-            | _ -> add ([ x ])
-            // ... finally
-            scanNext()
-        | Some('+') ->
-            match peek() with
-            | Some('=')
-            | Some('+') ->
-                ignore <| next()
-                add
-                    ([ x
-                       next() ])
-            | _ -> add ([ x ])
-            // ... finally
-            scanNext()
-        | Some('-') ->
-            match peek() with
-            | Some('=')
-            | Some('-') ->
-                add
-                    ([ x
-                       next() ])
-            | _ -> add ([ x ])
-            // ... finally
-            scanNext()
-        | Some(' ') ->
-            let mutable collected: char option list = []
-            while (isSpace (peek())) do
-                collected <- collected @ [ next() ]
-            add (x :: collected)
-            scanNext()
-        | None -> () // end!
-        // is NOT None is Something else
-        | _ when isSpace (x) ->
-            let mutable collected: char option list = []
-            while (isSpace (peek())) do
-                collected <- collected @ [ next() ]
-            add (x :: collected)
-            scanNext()
-        | _ when isWord (x) ->
-            let mutable collected: char option list = [ x ]
-            while (isWord (peek()) || isDigit (peek())) do
-                collected <- collected @ [ next() ]
-            add (collected)
-            scanNext()
-        | _ ->
-            (f "found: default: %A \n" x)
-            add ([ x ])
-            scanNext()
-    // ... return scan function
-    scan
+let rec Scanner (next: Next) (x: Option<char>) =
+    [ match x with
+      | Some('=') ->
+          match next (false) with
+          | Some('=')
+          | Some('>') ->
+              ignore <| next (true)
+              yield Result(([ x;next (true) ]))
+          | _ -> yield Result([ x ])
+          // ... finally
+          ignore <| Scanner next (next (true))
+      | Some('+') ->
+          match next (false) with
+          | Some('=')
+          | Some('+') ->
+              ignore <| next (true)
+              yield Result([ x;next (true) ])
+          // ..else
+          | _ -> 
+            yield Result([ x ])
+          // ... finally
+          ignore <| Scanner next (next (true))
+      | Some('-') ->
+          match next (false) with
+          | Some('=')
+          | Some('-') ->
+              yield Result([ x;next (true) ])
+          // else
+          | _ -> yield Result([ x ])
+          // ... finally
+          ignore <| Scanner next (next (true))
+      | Some(' ') ->
+          let mutable collected: option<char> list = []
+          while (isSpace (next (false))) do
+              collected <- collected @ [ next (true) ]
+          yield Result((x :: collected))
+          ignore <| Scanner next (next (true))
+      | None -> () // end!
+      // is NOT None is Something else
+      | _ when isSpace (x) ->
+          let mutable collected: option<char> list = []
+          while (isSpace (next (false))) do
+              collected <- collected @ [ next (true) ]
+          yield Result(x :: collected)
+          ignore <| Scanner next (next (true))
+      | _ when isWord (x) ->
+          let mutable collected: option<char> list = [ x ]
+          while (isWord (next (false)) || isDigit (next (false))) do
+              collected <- collected @ [ next (true) ]
+          yield Result(collected)
+          ignore <| Scanner next (next (true))
+      | _ ->
+          (printf "found: default: %A \n" x)
+          yield Result([ x ])
+          ignore <| Scanner next (next (true)) ]
+
 /// <summary>
-/// Built Scanner
+/// Starts the Scanner
+/// </summary>
+let Starter(next: Next) = (next, next (true))
+
 /// <summary>
+/// Scans ...
+/// </summary>
 let Scan(input: string) =
-    let next = Queue(input)
-    let mutable out: string option list = []
-
-    let add (results: List<Option<char>>) =
-        // ...
-        results
-        |> List.map (fun o -> o.Value.ToString())
-        |> List.reduce join
-        |> (fun value -> out <- out @ [ Some(value) ])
-
-    let scan = Scanner next add
-    scan (next (true))
-    out
+    input
+    |> (Queue)
+    |> Starter
+    ||> Scanner
+// |> List.map(fun list-> List.fold(fun a-> fun b -> a + b.ToString()) "" list )
