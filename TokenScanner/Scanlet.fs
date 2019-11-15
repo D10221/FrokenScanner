@@ -1,11 +1,12 @@
 module TokenScanner.Scanlet
+
 open Types
 /// <summary>
 /// Scan and Match subsequent expected options
 /// </summary>
-let scannlet (peek: Peek) (next: Next) (expected: List<Option<char>>) =
+let scannlet (next: Next) (expected: List<Option<char>>) =
     [ for expect in expected do
-        let incoming = peek()
+        let incoming = next(false)
         if (incoming = expect) then
-            ignore <| next()
+            ignore <| next(true)
             yield incoming ]

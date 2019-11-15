@@ -1,3 +1,5 @@
+using System;
+using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ScannerCsharptest
@@ -11,10 +13,10 @@ namespace ScannerCsharptest
         [TestMethod]
         public void QueueTest()
         {
-            var queue = Queue("");
-            var peek = queue.Item1;
-            var next = queue.Item2;
-            AreEqual(peek.Invoke(null), next.Invoke(null));
+            var _next = Queue("");
+            Func<FSharpOption<char>> peek = () => _next.Invoke(false);
+            Func<FSharpOption<char>> next = () => _next.Invoke(true);
+            AreEqual(peek(), next());
         }
         ///<summary>
         /// Doesn't throw
@@ -22,18 +24,19 @@ namespace ScannerCsharptest
         [TestMethod]
         public void QueueTest1()
         {
-            var queue = Queue("");
-            var peek = queue.Item1;
-            var next = queue.Item2;
-            var a = peek.Invoke();
-            var b = peek.Invoke();
-            var c = peek.Invoke();
+            var _next = Queue("");
+            Func<FSharpOption<char>> peek = () => _next.Invoke(false);
+            Func<FSharpOption<char>> next = () => _next.Invoke(true);
+
+            var a = peek();
+            var b = peek();
+            var c = peek();
             AreEqual(a, b);
             AreEqual(b, c);
             AreEqual(a, c);
-            a = next.Invoke();
-            b = next.Invoke();
-            c = next.Invoke();
+            a = next();
+            b = next();
+            c = next();
             AreEqual(a, b);
             AreEqual(b, c);
             AreEqual(a, c);
@@ -44,17 +47,16 @@ namespace ScannerCsharptest
         [TestMethod]
         public void QueueTest2()
         {
-            var queue = Queue("a");
-            var peek = queue.Item1;
-            var next = queue.Item2;
+            var _next = Queue("a");
+            Func<FSharpOption<char>> peek = () => _next.Invoke(false);
+            Func<FSharpOption<char>> next = () => _next.Invoke(true);
 
             AreEqual(peek.Invoke().Value, 'a');//index never moved, future is 'a'
             AreEqual(peek.Invoke().Value, 'a');//index never moved, again!
             AreEqual(next.Invoke().Value, 'a');//moved, present is 'a'
             // Its seems Fsharp returns NUll
             IsTrue(next.Invoke().IsNone());
-            // again!
-            IsTrue(next.Invoke().IsNone());
+            IsTrue(peek.Invoke().IsNone());
         }
         ///<summary>
         /// Doesn't throw
@@ -62,17 +64,19 @@ namespace ScannerCsharptest
         [TestMethod]
         public void QueueTest3()
         {
-            var queue = Queue("a");
-            var peek = queue.Item1;
-            var next = queue.Item2;
+            var _next = Queue("ab");
+            Func<FSharpOption<char>> peek = () => _next.Invoke(false);
+            Func<FSharpOption<char>> next = () => _next.Invoke(true);
 
-            AreEqual(peek.Invoke().Value, 'a');//index never moved, future is 'a'
-            AreEqual(peek.Invoke().Value, 'a');//index never moved, again!
-            AreEqual(next.Invoke().Value, 'a');//moved, present is 'a'
-            // Its seems Fsharp returns NUll
+            AreEqual(peek.Invoke().Value, 'a');
+            AreEqual(next.Invoke().Value, 'a');
+
+            AreEqual(peek.Invoke().Value, 'b');
+            AreEqual(next.Invoke().Value, 'b');
+
             IsTrue(next.Invoke().IsNone());
-            // again!
-            IsTrue(next.Invoke().IsNone());
+            AreEqual(peek.Invoke(), null);
+            IsTrue(peek.Invoke().IsNone());
         }
     }
 }

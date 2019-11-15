@@ -1,4 +1,5 @@
 ﻿module TokenScanner.Queue
+
 open Types
 ///<summary>
 /// Creeates Peek And Next hold index state
@@ -10,17 +11,21 @@ let Queue: Queue =
         // ...
         let ok = fun () -> (index + 1) < (input.Length)
         // ...
-        let peek: Peek =
-            fun () ->
-                if ok() then Some(input.[index + 1])
-                else None
+        let peek unit =
+            if ok() then Some(input.[index + 1])
+            else None
         // ...
-        let next: Next =
-            fun () ->
+        let fwd unit =
                 if ok() then
                     index <- index + 1
                     Some(input.[index])
                 else
-                    None
+                    None            
         // ...
-        (peek, next)
+        let next: Next =
+            fun consume ->
+                if consume then fwd()
+                else peek()
+
+        // ...
+        next
