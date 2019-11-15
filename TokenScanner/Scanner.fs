@@ -87,11 +87,13 @@ let Scan(input: string) =
 
     let mutable accumulator: List<string> = []
 
-    let append chars = accumulator <- accumulator @ [ chars ]
+    let append more = accumulator <- accumulator @ [ more ]
 
-    let subscriber (options: List<Option<char>>) =
-        options
-        |> (List.fold (fun acc o -> acc + o.Value.ToString()) "")
+    let toString acc (o: Option<char>) = acc + o.Value.ToString()
+
+    let subscriber (payload: List<Option<char>>) =
+        payload
+        |> (List.fold (toString) "")
         |> append
 
     let scan = Scanner subscriber
