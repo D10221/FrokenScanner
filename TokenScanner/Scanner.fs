@@ -31,6 +31,7 @@ let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) =
         match peek() with
         | Some('=')
         | Some('+') ->
+            // ignore <| next()
             subscriber
                 ([ x
                    next() ])
