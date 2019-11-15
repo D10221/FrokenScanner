@@ -1,7 +1,12 @@
 ﻿module TokenScanner.Scanner
+
 open TokenScanner.Scan
 open TokenScanner.Queue
-    let Scan args =
-        args
-        |> Queue
-        ||> Scan
+
+///<summary>
+/// Ready to use scanner
+///</summary>
+let Scan args =
+    args
+    |> Queue
+    ||> Scan
