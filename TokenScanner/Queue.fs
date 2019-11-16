@@ -26,6 +26,5 @@ let Queue: Queue =
             fun consume ->
                 if consume then fwd()
                 else peek()
-
         // ...
         next
