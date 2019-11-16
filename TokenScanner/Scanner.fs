@@ -20,21 +20,14 @@ let rec Scanner (subscriber: Subscriber) (_next: Next) =
     match x with
     | None -> () // end!
     | Some('=') ->
+        // match: '=' or '==' or '=>'
         TriadScanlet ('=', '=', '>') _next |> subscriber
         ignore <| scan()
-    | Some('+') ->
-        // same as TriadScanlet
-        match peek() with
-        | Some('=')
-        | Some('+') ->
-            subscriber
-                ([ x
-                   next() ])
-        // ..else
-        | _ -> subscriber ([ x ])
-        // ... finally
+    | Some('+') -> 
+        PlusScanlet _next |> subscriber
         ignore <| scan()
     | Some('-') ->
+        // match '-' or '-=' or '--'
         match peek() with
         | Some('=')
         | Some('-') ->

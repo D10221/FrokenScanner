@@ -24,3 +24,17 @@ let TriadScanlet ((x, y, z): char * char * char) (next: Next) =
         [ Some(x)
           next (true) ]
     | _ -> [ Some(x) ]
+
+/// <summary>
+/// Hard coded Triad scanlet: erasier to read, Scans for '+' or '+=' or '++'
+/// </summary>
+let PlusScanlet(next: Next) =
+    let peek unit = next (false)
+    let next unit = next (true)
+    match peek() with
+    | Some('=')
+    | Some('+') ->
+        ([ Some('+')
+           next() ])
+    // ..else
+    | _ -> ([ Some('+') ])
