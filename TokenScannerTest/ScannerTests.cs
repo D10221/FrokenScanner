@@ -66,6 +66,14 @@ namespace ScannerCsharptest
             AreEqual("\r", Scan(" \n \r")[3]);
             AreEqual("\n", Scan(" \n \r")[1]);
         }
+        [TestMethod]
+        public void IsDigitTest(){
+            AreEqual("1", Scan("1a1")[0]);
+            AreEqual("a1", Scan("1a1")[1]);
+            AreEqual("11", Scan("11a1")[0]);
+            AreEqual("a1", Scan("11a1")[1]);
+            AreEqual("1.1", Scan("1.1a1")[0]);
+        }
 
         [TestMethod]
         public void TiadScanletTest()

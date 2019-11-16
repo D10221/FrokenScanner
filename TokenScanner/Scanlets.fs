@@ -51,9 +51,9 @@ let PlusScanlet(next: Next) =
     // ..else
     | _ -> ([ Some('+') ])
 /// <summary>
-/// collect all consecutive token of the matching kind
+/// collect while token is of the matching kind
 /// </summary>
-let CollectScanlet (isMatch: Option<char> -> bool) (next: Next) =
+let CollectWhileScanlet (isMatch: Option<char> -> bool) (next: Next) =
     let peek unit = next (false)
     let next unit = next (true)
     let mutable collected: option<char> list = []
