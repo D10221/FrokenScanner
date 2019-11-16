@@ -3,6 +3,7 @@
 open System.Text.RegularExpressions
 open Queue
 open Types
+open Scanlets
 
 let isWord (o: Option<char>) = o <> None && Regex("\w+").IsMatch(o.Value.ToString())
 let isDigit (o: Option<char>) = o <> None && Regex("\d+").IsMatch(o.Value.ToString())
@@ -11,23 +12,18 @@ let isSpace (o: Option<char>) = o <> None && Regex("\s+").IsMatch(o.Value.ToStri
 ///<summary>
 ///
 ///<summary>
-let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) =
-    let scan = fun () -> Scanner subscriber _next 
+let rec Scanner (subscriber: Subscriber) (_next: Next) =
+    let scan = fun () -> Scanner subscriber _next
     let peek = fun () -> _next (false) // don't advance & return next
     let next = fun () -> _next (true) // advance & return current
     let x = next()
     match x with
+    | None -> () // end!
     | Some('=') ->
-        match peek() with
-        | Some('=')
-        | Some('>') ->
-            subscriber
-                ([ x
-                   next() ])
-        | _ -> subscriber ([ x ])
-        // ... finally
+        TriadScanlet ('=', '=', '>') _next |> subscriber
         ignore <| scan()
     | Some('+') ->
+        // same as TriadScanlet
         match peek() with
         | Some('=')
         | Some('+') ->
@@ -55,8 +51,7 @@ let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) =
             collected <- collected @ [ next() ]
         subscriber ((x :: collected))
         ignore <| scan()
-    | None -> () // end!
-    // is NOT None is Something else
+    // Something else
     | _ when isSpace (x) ->
         let mutable collected: option<char> list = []
         while (isSpace (peek())) do
@@ -73,11 +68,6 @@ let rec Scanner (subscriber: List<Option<char>> -> unit) (_next: Next) =
         (printf "found: default: %A \n" x)
         subscriber ([ x ])
         ignore <| scan()
-
-/// <summary>
-/// Starts the Scanner
-/// </summary>
-let Starter(next: Next) = (next, next (true))
 
 /// <summary>
 /// Scans ...

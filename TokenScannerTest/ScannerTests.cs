@@ -23,7 +23,7 @@ namespace ScannerCsharptest
             AreEqual(results[2], "b");
         }
         [TestMethod]
-        public void Compunds()
+        public void Compounds()
         {
             var results = Scan("a+=b");
             AreEqual(results[0], "a");
@@ -31,23 +31,30 @@ namespace ScannerCsharptest
             AreEqual(results[2], "b");
         }
         [TestMethod]
-        public void Compunds2()
-        {            
+        public void Compounds2()
+        {
             AreEqual("a ++ = b", join(Scan("a++=b"), " "));
         }
         [TestMethod]
-        public void Compunds3()
-        {            
+        public void Compounds3()
+        {
             AreEqual("a,+, ,+=,b", join(Scan("a+ +=b"), ","));
         }
         [TestMethod]
-        public void Compunds4()
-        {            
+        public void Compounds4()
+        {
             AreEqual("a ++ -= b", join(Scan("a++-=b"), " "));
             AreEqual("a ++ -= b", join(NoSpaces(Scan("a++ -= b")), " "));
         }
-        static IEnumerable<string> NoSpaces(IEnumerable<string> input){
-            return input.Where(x=> !string.IsNullOrWhiteSpace(x));
+
+        [TestMethod]
+        public void TiadScanletTest()
+        {
+            AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(Scan("x => x == x = true")), ","));            
+        }
+        static IEnumerable<string> NoSpaces(IEnumerable<string> input)
+        {
+            return input.Where(x => !string.IsNullOrWhiteSpace(x));
         }
         static string join(IEnumerable<string> input, string separator = "")
         {

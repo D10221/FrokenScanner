@@ -1,28 +1,26 @@
 module TokenScanner.Scanlets
 
 open Types
-/// <summary>
-/// Scan and Match subsequent expected options
-/// </summary>
-let ScannletForManyOptions (next: Next) (expected: List<Option<char>>) =
-    [ for expect in expected do
-        let incoming = next (false)
-        if (incoming = expect) then
-            ignore <| next (true)
-            yield incoming ]
 
-[<Literal>]
-let Equals = '='
+/// <summary>
+/// Match Sequence always includes 1st
+/// </summary>
+let MatchSequenceScanlet (expected: List<char>) (next: Next) =
+    let first = Some(expected.[0])
+
+    let ret =
+        [ for x in expected.[1..] do
+            let peek = next (false)
+            if (peek = Some(x)) then next (true) ]
+    first :: ret
+
 ///<summary>
-/// Starts with "Equals"('-') Scanlet
-///
+/// Matches peek with y or z. else or None with x
 ///</summary>
-let Scanlet(next: Next) =  
-    let x = Some(Equals)
-    match next(false) with
-    | Some('=')
-    | Some('>') ->
-        [ x
-          next(true) ]
-    // else
-    | _ -> ([ x ])
+let TriadScanlet ((x, y, z): char * char * char) (next: Next) =
+    match next (false) with
+    | None -> [ Some(x) ]
+    | some when some = Some(y) || some = Some(z) ->
+        [ Some(x)
+          next (true) ]
+    | _ -> [ Some(x) ]
