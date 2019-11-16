@@ -7,7 +7,11 @@ open Scanlets
 
 let isWord (o: Option<char>) = o <> None && Regex("\w+").IsMatch(o.Value.ToString())
 let isDigit (o: Option<char>) = o <> None && Regex("\d+").IsMatch(o.Value.ToString())
-let isSpace (o: Option<char>) = o <> None && Regex("\s+").IsMatch(o.Value.ToString())
+let isLF o = o <> None && o.Value = '\n'
+let isCR o = o <> None && o.Value = '\r'
+let isSpace (o: Option<char>) =
+    o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s+").IsMatch(o.Value.ToString())
+let isWordOrDigit (peek: Option<char>) = isWord (peek) || isDigit (peek)
 
 ///<summary>
 ///
@@ -16,17 +20,16 @@ let rec Scanner (subscriber: Subscriber) (_next: Next) =
     let scan = fun () -> Scanner subscriber _next
     let peek = fun () -> _next (false) // don't advance & return next
     let next = fun () -> _next (true) // advance & return current
-    let x = next()
-    match x with
+    match next() with
     | None -> () // end!
     | Some('=') ->
         // match: '=' or '==' or '=>'
         TriadScanlet ('=', '=', '>') _next |> subscriber
         ignore <| scan()
-    | Some('+') -> 
+    | Some('+') ->
         PlusScanlet _next |> subscriber
         ignore <| scan()
-    | Some('-') ->
+    | Some('-') as x ->
         // match '-' or '-=' or '--'
         match peek() with
         | Some('=')
@@ -38,26 +41,23 @@ let rec Scanner (subscriber: Subscriber) (_next: Next) =
         | _ -> subscriber ([ x ])
         // ... finally
         ignore <| scan()
-    | Some(' ') ->
-        let mutable collected: option<char> list = []
-        while (isSpace (peek())) do
-            collected <- collected @ [ next() ]
-        subscriber ((x :: collected))
+    | Some('\n') as x ->
+        subscriber ([ x ])
         ignore <| scan()
-    // Something else
-    | _ when isSpace (x) ->
-        let mutable collected: option<char> list = []
-        while (isSpace (peek())) do
-            collected <- collected @ [ next() ]
-        subscriber (x :: collected)
+    | Some('\r') ->
+        // match '\r' and maybe '\n'
+        DualScanlet ('\r', '\n') _next |> subscriber 
         ignore <| scan()
-    | _ when isWord (x) ->
-        let mutable collected: option<char> list = [ x ]
-        while (isWord (peek()) || isDigit (peek())) do
-            collected <- collected @ [ next() ]
-        subscriber (collected)
+    | x when isSpace (x) ->
+        // group spaces
+        subscriber (x :: CollectScanlet isSpace _next)
         ignore <| scan()
-    | _ ->
+    | x when isWord (x) ->
+        // starts with word, may contain right numbers or word
+        subscriber (x :: CollectScanlet isWordOrDigit _next)
+        ignore <| scan()
+    // TODO: IsDigit or is dot and digits, or digit and dot digits
+    | x ->
         (printf "found: default: %A \n" x)
         subscriber ([ x ])
         ignore <| scan()

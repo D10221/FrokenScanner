@@ -46,11 +46,31 @@ namespace ScannerCsharptest
             AreEqual("a ++ -= b", join(Scan("a++-=b"), " "));
             AreEqual("a ++ -= b", join(NoSpaces(Scan("a++ -= b")), " "));
         }
+        [TestMethod]
+        public void CollectSpaces()
+        {
+            AreEqual("   ", Scan("   ")[0]);
+            AreEqual("\t  ", Scan("\t  ")[0]);
+            AreEqual("  ", Scan("\r  ")[1]);
+        }
+        [TestMethod]
+        public void FindsNewLine()
+        {           
+            var all = Scan(" \n ");                        
+            AreEqual("\n", all[1]);                        
+            AreEqual("\r\n", Scan(" \r\n ")[1]);
+            AreEqual("\r", Scan(" \r ")[1]);
+            AreEqual("\n", Scan(" \n ")[1]);
+            AreEqual("\r", Scan(" \r \n")[1]);
+            AreEqual("\n", Scan(" \r \n")[3]);
+            AreEqual("\r", Scan(" \n \r")[3]);
+            AreEqual("\n", Scan(" \n \r")[1]);
+        }
 
         [TestMethod]
         public void TiadScanletTest()
         {
-            AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(Scan("x => x == x = true")), ","));            
+            AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(Scan("x => x == x = true")), ","));
         }
         static IEnumerable<string> NoSpaces(IEnumerable<string> input)
         {
