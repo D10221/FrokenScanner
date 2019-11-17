@@ -3,44 +3,42 @@ module TokenScanner.Scanlets
 open Types
 
 /// <summary>
-/// Match Sequence always includes 1st
+/// Scanlet: Match Sequence
 /// </summary>
-let MatchSequenceScanlet (expected: List<char>) (next: Next) =
-    let first = Some(expected.[0])
-
+let TakeMany (expected: List<char>) (next: Next) =
     let ret =
-        [ for x in expected.[1..] do
+        [ for x in expected do
             let peek = next (false)
             if (peek = Some(x)) then next (true) ]
-    first :: ret
+    ret
 ///<summary>
-/// Matches peek with y else or None with x
+/// Scanlet: Matches peek with y else or None with x
 ///</summary>
-let DualScanlet ((x, y): char * char) (next: Next) =
+let TakeOne target y (next: Next) =
     let peek unit = next (false)
     let next unit = next (true)
     match peek() with
-    | None -> [ Some(x) ]
+    | None -> [ target ]
     | some when some = Some(y) ->
-        [ Some(x)
+        [ target
           next() ]
-    | _ -> [ Some(x) ]
+    | _ -> [ target ]
 
 ///<summary>
-/// Matches peek with y or z. else or None with x
+/// Scanlet: Matches peek with y or z. else or None with x
 ///</summary>
-let TriadScanlet ((x, y, z): char * char * char) (next: Next) =
+let TakeTwo target ((y, z): (char * char)) (next: Next) =
     match next (false) with
-    | None -> [ Some(x) ]
+    | None -> [ target ]
     | some when some = Some(y) || some = Some(z) ->
-        [ Some(x)
+        [ target
           next (true) ]
-    | _ -> [ Some(x) ]
+    | _ -> [ target ]
 
 /// <summary>
-/// Hard coded Triad scanlet: erasier to read, Scans for '+' or '+=' or '++'
+/// Scanlet: Hard coded Triad scanlet: erasier to read, Scans for '+' or '+=' or '++'
 /// </summary>
-let PlusScanlet(next: Next) =
+let Plus(next: Next) =
     let peek unit = next (false)
     let next unit = next (true)
     match peek() with
@@ -53,10 +51,22 @@ let PlusScanlet(next: Next) =
 /// <summary>
 /// collect while token is of the matching kind
 /// </summary>
-let CollectWhileScanlet (isMatch: Option<char> -> bool) (next: Next) =
+let TakeWhile (isMatch: Option<char> -> bool) (next: Next) =
     let peek unit = next (false)
     let next unit = next (true)
     let mutable collected: option<char> list = []
     while (isMatch (peek())) do
         collected <- collected @ [ next() ]
     collected
+///<sumary>
+/// Scanlet of Scanlet: prepend x to scanlet result
+///</sumary>
+let StartWith x (scanlet: Scanlet) (next: Next) =
+    let ret = x :: (scanlet next)
+    ret
+///<sumary>
+/// Scanlet: satisfy scanlet signature
+/// returns x
+/// passthru
+///</sumary>
+let Take (x: Option<char>) (next: Next) = [ x ]
