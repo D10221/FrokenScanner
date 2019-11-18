@@ -1,5 +1,5 @@
 /// <summary>
-/// Configuration  
+/// Configuration
 /// </summary>
 module TokenScanner.Scanlets
 
@@ -17,6 +17,12 @@ let isDigitOrDot o = o <> None && isDigit (o) || isDot (o)
 let isSpace (o: Option<char>) =
     o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s").IsMatch(o.Value.ToString())
 
+let private maybeLikeASerilizableLikeThis =
+    [ [ "="; "="; ">" ]
+      [ "+"; "="; "+" ]
+      [ "-"; "="; "-" ]
+      [ "\n" ]
+      [ "\r"; "\n" ] ]
 /// <summary>
 /// Configuration
 /// </summary>
@@ -24,6 +30,7 @@ let private scanlets =
     Map.ofList <| [ ('=', TakeTwo('=', '>') |> StartWith(Some('=')))
                     ('+', TakeTwo('=', '+') |> StartWith(Some('+')))
                     ('-', TakeTwo('=', '-') |> StartWith(Some('-')))
+                    // TODO: list from json? or something like it
                     ('\n', Take(Some('\n')))
                     ('\r', TakeOne '\n' |> StartWith(Some('\r'))) ]
 
@@ -37,7 +44,7 @@ let findKey key =
 let exists (key: Option<char>) = Option.isSome key && scanlets.ContainsKey(key.Value)
 
 /// <summary>
-/// Find scanlet 
+/// Find scanlet
 /// </summary>
 let find token =
     match token with
@@ -55,11 +62,12 @@ let find token =
         TakeWhile isDigitOrDot
         |> StartWith x
         |> Some
-    // TODO a.a ? No is parser job
-    // TODO .a  ? No is parser job
-    // TODO .1  ? No is parser job
+    // TODO a.a ? No, is parser's job
+    // TODO .a  ? No, is parser's job
+    // TODO .1 ?
     // TODO 1D ?
     // TODO 1x0 ?
     | x ->
+        // TODO: raise NotFound
         (printf "found: default: %A \n" x)
         Take x |> Some

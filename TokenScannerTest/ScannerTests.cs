@@ -77,7 +77,7 @@ namespace ScannerCsharptest
         }
 
         [TestMethod]
-        public void TiadScanletTest()
+        public void TriadScanletTest()
         {
             AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(Scan("x => x == x = true")), ","));
         }

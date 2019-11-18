@@ -7,7 +7,7 @@ open System
 /// it: could return Observable ?
 /// it: can't yield
 ///<summary>
-let rec Scanner (observer: IObserver<List<Option<char>>>) (queue: Queue) =
+let rec Scanner (observer: IObserver<List<Option<char>>>)  (queue: Queue) =
     // :recursor
     let takeNext scanlet =
         observer.OnNext <| scanlet queue
