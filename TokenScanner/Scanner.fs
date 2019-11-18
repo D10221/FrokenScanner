@@ -2,10 +2,6 @@
 
 open Types
 
-/// **Description**
-/// Scans the queue
-/// **Output Type**
-///   * `Option<char> list list`
 let rec Scanner (queue: Queue) =
     // :recursor
     let takeNext scanlet =        
