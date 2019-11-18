@@ -4,7 +4,6 @@ open Scanner
 open Subject
 open Queue
 open Collector
-open System
 
 let toString acc (o: Option<char>) = acc + o.Value.ToString()
 let toStrings = (List.fold (toString) "")

@@ -4,7 +4,6 @@
 module TokenScanner.Scanlets
 
 open System.Text.RegularExpressions
-open Types
 open Scanlet
 
 let isDigit (o: Option<char>) = o <> None && Regex("\d").IsMatch(o.Value.ToString())
@@ -38,6 +37,7 @@ let findKey key =
     match scanlets.TryFind(key) with
     | None -> None
     | scanlet -> scanlet
+    
 /// <summary>
 /// Scanlet Exists
 /// </summary>
