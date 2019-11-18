@@ -9,7 +9,6 @@
     <Compile Include="Queue.fs" />
     <Compile Include="Matching.fs" />
     <Compile Include="Scanner.fs" />
-    <Compile Include="Subject.fs" />
     <Compile Include="Scan.fs" />
   </ItemGroup>
 </Project>

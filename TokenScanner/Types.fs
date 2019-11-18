@@ -5,6 +5,4 @@ module TokenScanner.Types
 /// </summary>
 type Queue = bool -> char option
 
-type Subscriber = List<Option<char>> -> unit
-
 type Scanlet = Queue -> List<Option<char>>

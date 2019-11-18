@@ -14,15 +14,9 @@ namespace ScannerCsharptest
     {
         [TestMethod]
         public void ItDoesntCrash()
-        {            
-            var result = Scan("").ToList(Fold);
-        }
-
-        private static string Fold(IEnumerable<FSharpOption<char>> values)
         {
-            return values.Select(x => x.Value.ToString()).Aggregate((a, b) => a + b);
+            var result = Scan("");
         }
-
         [TestMethod]
         public void Basics()
         {
@@ -30,13 +24,7 @@ namespace ScannerCsharptest
             AreEqual(results[0], "a");
             AreEqual(results[1], "+");
             AreEqual(results[2], "b");
-        }
-
-        private static List<string> scan(string text)
-        {
-            return Scan(text).ToList(Fold);
-        }
-
+        }        
         [TestMethod]
         public void Compounds()
         {
@@ -90,11 +78,18 @@ namespace ScannerCsharptest
             AreEqual("a1", scan("11a1")[1]);
             AreEqual("1.1", scan("1.1a1")[0]);
         }
-
         [TestMethod]
         public void TriadScanletTest()
         {
             AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(scan("x => x == x = true")), ","));
+        }
+        private static List<string> scan(string text)
+        {
+            return Scan(text).Select(Fold).ToList();
+        }
+        private static string Fold(IEnumerable<FSharpOption<char>> values)
+        {
+            return values.Select(x => x.Value.ToString()).Aggregate((a, b) => a + b);
         }
         static IEnumerable<string> NoSpaces(IEnumerable<string> input)
         {

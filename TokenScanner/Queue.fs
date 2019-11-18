@@ -1,6 +1,5 @@
 ﻿module TokenScanner.Queue
 
-open Types
 ///<summary>
 /// Creeates Peek And Next hold index state
 ///</summary>

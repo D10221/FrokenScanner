@@ -1,23 +1,19 @@
 ﻿module TokenScanner.Scanner
 
 open Types
-open System
 
-///<summary>
-/// it: could return Observable ?
-/// it: can't yield
-///<summary>
-let rec Scanner (observer: IObserver<List<Option<char>>>)  (queue: Queue) =
+/// **Description**
+/// Scans the queue
+/// **Output Type**
+///   * `Option<char> list list`
+let rec Scanner (queue: Queue) =
     // :recursor
-    let takeNext scanlet =
-        observer.OnNext <| scanlet queue
-        Scanner observer queue
+    let takeNext scanlet =        
+        scanlet queue :: Scanner queue
 
     let nextToken = queue (true) // advance ad return current
     
-    try
-        match Scanlets.find nextToken with
-        | None -> observer.OnCompleted()
+    match Scanlets.find nextToken with
+        | None -> []
         | scanlet -> Option.get scanlet |> takeNext
-    with ex -> observer.OnError ex
  
