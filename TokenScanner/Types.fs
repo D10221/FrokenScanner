@@ -1,10 +1,10 @@
 module TokenScanner.Types
 /// <summarY>
 /// increase index and return current
-/// parameter is consume? move?
+/// parameter is true then consume/move/advance else peek 
 /// </summary>
-type Next = bool -> char option
+type Queue = bool -> char option
 
 type Subscriber = List<Option<char>> -> unit
 
-type Scanlet = Next -> List<Option<char>>
+type Scanlet = Queue -> List<Option<char>>
