@@ -18,36 +18,51 @@ let isSpace (o: Option<char>) =
     o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s").IsMatch(o.Value.ToString())
 
 ///<summary>
-/// It could be be an Observable / Subject ? 
-/// It can't yeld
+/// emit: could be a Subject ?
+/// it: could return Observable ?
+/// it: can't yeld
 ///<summary>
 let rec Scanner (emit: Subscriber) (next: Next) =
 
     let peek() = next (false) // don't advance & return next
 
-    /// recurse 
-    let takeNext scanlet = 
+    /// recurse
+    let takeNext scanlet =
         scanlet next |> emit
-        Scanner emit next 
+        Scanner emit next
 
     let next() = next (true) // advance & return current
 
     match next() with
     | None -> () // end!/Complete
-    | Some('=') as x -> TakeTwo x ('=', '>') |> takeNext
-    | Some('+') as x -> TakeTwo x ('=', '+') |> takeNext
-    | Some('-') as x -> TakeTwo x ('=', '-') |> takeNext
-    | Some('\n') as x -> Take x |> takeNext
-    | Some('\r') as x -> TakeOne x '\n' |> takeNext // match '\r' and maybe '\n'
-    | x when isSpace (x) ->
+    | Some('=') as x -> 
+        TakeTwo  ('=', '>') 
+        |> StartWith x
+        |> takeNext
+    | Some('+') as x -> 
+        TakeTwo  ('=', '+') 
+        |> StartWith x
+        |> takeNext
+    | Some('-') as x -> 
+        TakeTwo  ('=', '-') 
+        |> StartWith x
+        |> takeNext
+    | Some('\n') as x -> 
+        Take x 
+        |> takeNext
+    | Some('\r') as x -> 
+        TakeOne '\n' 
+        |> StartWith x
+        |> takeNext // match '\r' and maybe '\n'
+    | x when x |> isSpace ->
         TakeWhile isSpace
         |> StartWith x
         |> takeNext
-    | x when isWord (x) ->
+    | x when x |> isWord ->
         TakeWhile isWordOrDigit
         |> StartWith x
         |> takeNext
-    | x when isDigit (x) ->
+    | x when x |> isDigit ->
         TakeWhile isDigitOrDot
         |> StartWith x
         |> takeNext
@@ -58,7 +73,8 @@ let rec Scanner (emit: Subscriber) (next: Next) =
     // TODO 1x0 ?
     | x ->
         (printf "found: default: %A \n" x)
-        Take x |> takeNext
+        Take x 
+        |> takeNext
 
 /// <summary>
 /// Scans ...
