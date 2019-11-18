@@ -4,8 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Types.fs" />
-    <Compile Include="Scanlets.fs"/>
+    <Compile Include="Scanlets.fs" />
     <Compile Include="Queue.fs" />
+    <Compile Include="Matching.fs" />
     <Compile Include="Scanner.fs" />
   </ItemGroup>
 </Project>

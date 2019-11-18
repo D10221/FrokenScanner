@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TokenScanner", "TokenScanne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenScannerTest", "TokenScannerTest\TokenScannerTest.csproj", "{6E6421B2-D201-4B67-A69A-D187B10472D3}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TokenScannerTestF#", "TokenScannerTestF#\TokenScannerTestF#.fsproj", "{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{6E6421B2-D201-4B67-A69A-D187B10472D3}.Release|x64.Build.0 = Release|Any CPU
 		{6E6421B2-D201-4B67-A69A-D187B10472D3}.Release|x86.ActiveCfg = Release|Any CPU
 		{6E6421B2-D201-4B67-A69A-D187B10472D3}.Release|x86.Build.0 = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|x64.Build.0 = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|x64.ActiveCfg = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|x64.Build.0 = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAA58A7A-9E36-45B7-83B6-8AF6A01DC215}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
