@@ -10,8 +10,6 @@
     <Compile Include="Matching.fs" />
     <Compile Include="Scanner.fs" />
     <Compile Include="Subject.fs" />
-    <Compile Include="Collector.fs" />
     <Compile Include="Scan.fs" />
-    <Compile Include="ObservableScan.fs" />
   </ItemGroup>
 </Project>

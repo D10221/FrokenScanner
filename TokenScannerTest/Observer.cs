@@ -35,4 +35,11 @@ namespace ScannerCsharptest
             return new Observer<T>(action);
         }
     }
+    public static class Observer
+    {
+        public static Observer<T> From<T>(
+            Action<T> action,
+            Action<Exception> onError = null, Action onCompleted = null) => new Observer<T>(action, onError, onCompleted);
+       
+    }
 }

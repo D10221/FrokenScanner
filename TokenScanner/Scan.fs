@@ -3,16 +3,17 @@ module TokenScanner.Scan
 open Scanner
 open Subject
 open Queue
-open Collector
-
-let toString acc (o: Option<char>) = acc + o.Value.ToString()
-let toStrings = (List.fold (toString) "")
+open System
 
 /// <summary>
-/// Scans ...
+/// Observable Scanner ...TODO
 /// </summary>
 let Scan(input: string) =
-    let observer = Subject<List<Option<char>>>()    
-    use collector = collectFrom (observer)
-    Queue input |> Scanner observer |> ignore
-    collector.Value() |> List.map toStrings
+    {new IObservable<List<Option<char>>> with
+        member this.Subscribe subscriber =
+            let observer = Subject<List<Option<char>>>()
+            let disposable = (observer :> IObservable<List<Option<char>>>).Subscribe(subscriber)
+            Queue input |> Scanner observer |> ignore
+            { new IDisposable with
+                member this.Dispose() = disposable.Dispose() }}
+
