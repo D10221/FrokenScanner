@@ -1,70 +1,65 @@
+/// <summary>
+/// Configuration  
+/// </summary>
 module TokenScanner.Scanlets
 
+open System.Text.RegularExpressions
 open Types
+open Scanlet
+
+let isDigit (o: Option<char>) = o <> None && Regex("\d").IsMatch(o.Value.ToString())
+let isWord (o: Option<char>) =
+    o <> None && not (isDigit o) && // not checking for digit results in order sensitive match
+    Regex("\w").IsMatch(o.Value.ToString())
+let isWordOrDigit (peek: Option<char>) = isWord (peek) || isDigit (peek)
+let isDot o = o <> None && o.Value = '.'
+let isDigitOrDot o = o <> None && isDigit (o) || isDot (o)
+let isSpace (o: Option<char>) =
+    o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s").IsMatch(o.Value.ToString())
 
 /// <summary>
-/// Scanlet: Match Sequence
+/// Configuration
 /// </summary>
-let TakeMany (expected: List<char>) (next: Queue) =
-    let ret =
-        [ for x in expected do
-            let peek = next (false)
-            if (peek = Some(x)) then next (true) ]
-    ret
-///<summary>
-/// Scanlet: Matches peek with y else or None with x
-///</summary>
-let TakeOne  y  (next: Queue) =
-    let peek unit = next (false)
-    let next unit = next (true)
-    match peek() with
-    | None -> [  ]
-    | some when some = Some(y) ->
-        [ 
-          next() ]
-    | _ -> [  ]
-///<summary>
-/// Scanlet: Matches peek with y or z. else or None with x
-///</summary>
-let TakeTwo  ((y, z): char * char) (next: Queue) =
-    match next (false) with
-    | None -> [  ]
-    | some when some = Some(y) || some = Some(z) ->
-        [ 
-          next (true) ]
-    | _ -> [  ]
+let private scanlets =
+    Map.ofList <| [ ('=', TakeTwo('=', '>') |> StartWith(Some('=')))
+                    ('+', TakeTwo('=', '+') |> StartWith(Some('+')))
+                    ('-', TakeTwo('=', '-') |> StartWith(Some('-')))
+                    ('\n', Take(Some('\n')))
+                    ('\r', TakeOne '\n' |> StartWith(Some('\r'))) ]
+
+let findKey key =
+    match scanlets.TryFind(key) with
+    | None -> None
+    | scanlet -> scanlet
 /// <summary>
-/// collect while token is of the matching kind
+/// Scanlet Exists
 /// </summary>
-let TakeWhile (isMatch: Option<char> -> bool) (next: Queue) =
-    let peek unit = next (false)
-    let next unit = next (true)
-    let mutable collected: option<char> list = []
-    while (isMatch (peek())) do
-        collected <- collected @ [ next() ]
-    collected
-///<sumary>
-/// Scanlet of Scanlet: prepend x to scanlet result
-///</sumary>
-let StartWith target (scanlet: Scanlet) (next: Queue) =
-    let ret = target :: (scanlet next)
-    ret
-///<sumary>
-/// Scanlet: satisfy scanlet signature
-/// returns x
-/// passthru
-///</sumary>
-let Take (x: Option<char>) (next: Queue) = [ x ]
+let exists (key: Option<char>) = Option.isSome key && scanlets.ContainsKey(key.Value)
+
 /// <summary>
-/// Scanlet: Hard coded Triad scanlet: erasier to read, Scans for '+' or '+=' or '++'
+/// Find scanlet 
 /// </summary>
-let Plus(next: Queue) =
-    let peek unit = next (false)
-    let next unit = next (true)
-    match peek() with
-    | Some('=')
-    | Some('+') ->
-        ([ Some('+')
-           next() ])
-    // ..else
-    | _ -> ([ Some('+') ])
+let find token =
+    match token with
+    | None -> None
+    | x when exists x -> findKey x.Value
+    | x when x |> isSpace ->
+        TakeWhile isSpace
+        |> StartWith x
+        |> Some
+    | x when x |> isWord ->
+        TakeWhile isWordOrDigit
+        |> StartWith x
+        |> Some
+    | x when x |> isDigit ->
+        TakeWhile isDigitOrDot
+        |> StartWith x
+        |> Some
+    // TODO a.a ? No is parser job
+    // TODO .a  ? No is parser job
+    // TODO .1  ? No is parser job
+    // TODO 1D ?
+    // TODO 1x0 ?
+    | x ->
+        (printf "found: default: %A \n" x)
+        Take x |> Some

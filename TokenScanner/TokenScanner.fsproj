@@ -4,9 +4,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="Scanlet.fs" />
     <Compile Include="Scanlets.fs" />
     <Compile Include="Queue.fs" />
     <Compile Include="Matching.fs" />
     <Compile Include="Scanner.fs" />
+    <Compile Include="Subject.fs" />
+    <Compile Include="Collector.fs" />
+    <Compile Include="Scan.fs" />
   </ItemGroup>
 </Project>

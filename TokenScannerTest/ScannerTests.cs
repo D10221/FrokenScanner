@@ -4,7 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ScannerCsharptest
 {
-    using static TokenScanner.Scanner;
+    using static TokenScanner.Scan;
+    
     using static Assert;
     [TestClass]
     public class ScannerTests
