@@ -5,4 +5,8 @@ module TokenScanner.Types
 /// </summary>
 type Queue = bool -> char option
 
-type Scanlet = Queue -> List<Option<char>>
+type Scanlet =  Queue -> List<Option<char>>
+
+type MatchToken = Option<char> -> bool
+
+type ScanletEntry = MatchToken * (Option<char> -> Queue -> List<Option<char>>)

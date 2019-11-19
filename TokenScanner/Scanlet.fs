@@ -46,7 +46,7 @@ let TakeWhile (isMatch: Option<char> -> bool) (next: Queue) =
 ///<sumary>
 /// Scanlet of Scanlet: prepend x to scanlet result
 ///</sumary>
-let StartWith target (scanlet: Scanlet) (next: Queue) =
+let StartWith (scanlet: Scanlet) target (next: Queue) =
     let ret = target :: (scanlet next)
     ret
 ///<sumary>

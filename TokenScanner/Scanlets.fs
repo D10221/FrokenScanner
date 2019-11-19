@@ -5,6 +5,8 @@ module TokenScanner.Scanlets
 
 open System.Text.RegularExpressions
 open Scanlet
+open Matching
+open Types
 
 let isDigit (o: Option<char>) = o <> None && Regex("\d").IsMatch(o.Value.ToString())
 let isWord (o: Option<char>) =
@@ -16,58 +18,20 @@ let isDigitOrDot o = o <> None && isDigit (o) || isDot (o)
 let isSpace (o: Option<char>) =
     o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s").IsMatch(o.Value.ToString())
 
-let private maybeLikeASerilizableLikeThis =
-    [ [ "="; "="; ">" ]
-      [ "+"; "="; "+" ]
-      [ "-"; "="; "-" ]
-      [ "\n" ]
-      [ "\r"; "\n" ] ]
+let xxx: ScanletEntry = valueMatch <| equals '=', TakeTwo('=', '>') |> StartWith
+let xx1: ScanletEntry = valueMatch <| equals '+', TakeTwo('=', '+') |> StartWith
+let xx2: ScanletEntry = valueMatch <| equals '-', TakeTwo('=', '-') |> StartWith
+let xx3: ScanletEntry = valueMatch <| equals '\n', Take
+let xx4: ScanletEntry = valueMatch <| equals '\r', TakeOne '\n' |> StartWith
+let xx5: ScanletEntry = isSpace, TakeWhile isSpace |> StartWith
+let xx6: ScanletEntry = isWord, TakeWhile isWordOrDigit |> StartWith
+let xx7: ScanletEntry = isDigit, TakeWhile isDigitOrDot |> StartWith
 /// <summary>
 /// Configuration
 /// </summary>
-let private scanlets =
-    Map.ofList <| [ ('=', TakeTwo('=', '>') |> StartWith(Some('=')))
-                    ('+', TakeTwo('=', '+') |> StartWith(Some('+')))
-                    ('-', TakeTwo('=', '-') |> StartWith(Some('-')))
-                    // TODO: list from json? or something like it
-                    ('\n', Take(Some('\n')))
-                    ('\r', TakeOne '\n' |> StartWith(Some('\r'))) ]
-
-let findKey key =
-    match scanlets.TryFind(key) with
-    | None -> None
-    | scanlet -> scanlet
-    
-/// <summary>
-/// Scanlet Exists
-/// </summary>
-let exists (key: Option<char>) = Option.isSome key && scanlets.ContainsKey(key.Value)
-
-/// <summary>
-/// Find scanlet
-/// </summary>
-let find token =
-    match token with
-    | None -> None
-    | x when exists x -> findKey x.Value
-    | x when x |> isSpace ->
-        TakeWhile isSpace
-        |> StartWith x
-        |> Some
-    | x when x |> isWord ->
-        TakeWhile isWordOrDigit
-        |> StartWith x
-        |> Some
-    | x when x |> isDigit ->
-        TakeWhile isDigitOrDot
-        |> StartWith x
-        |> Some
-    // TODO a.a ? No, is parser's job
-    // TODO .a  ? No, is parser's job
-    // TODO .1 ?
-    // TODO 1D ?
-    // TODO 1x0 ?
-    | x ->
-        // TODO: raise NotFound
-        (printf "found: default: %A \n" x)
-        Take x |> Some
+let scanlets: List<ScanletEntry> = [ xxx; xx1; xx2; xx3; xx4; xx5; xx6; xx7 ]
+// TODO a.a ? No, is parser's job
+// TODO .a  ? No, is parser's job
+// TODO .1 ?
+// TODO 1D ?
+// TODO 1x0 ?

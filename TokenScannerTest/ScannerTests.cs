@@ -1,8 +1,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
+using System;
 
 namespace ScannerCsharptest
 {
@@ -82,6 +82,13 @@ namespace ScannerCsharptest
         public void TriadScanletTest()
         {
             AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(scan("x => x == x = true")), ","));
+        }
+        [TestMethod]
+        public void FailsToFindScanlet (){
+            // TO be removed when "&"'s scanlet is implemented
+            ThrowsException<NotImplementedException>(()=>{
+                scan("&");
+            });
         }
         private static List<string> scan(string text)
         {

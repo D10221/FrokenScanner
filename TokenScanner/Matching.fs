@@ -2,8 +2,7 @@ module TokenScanner.Matching
 
 open System.Text.RegularExpressions
 
-let valueMatch matcher =
-    fun (o: char option) ->
+let valueMatch matcher (o: char option) =    
         match o with
         | None -> false
         | some -> matcher some.Value
