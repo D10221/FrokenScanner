@@ -33,8 +33,10 @@ let private isIdentifier =
     |> checkValue
     |> whenSome
 
-let isSymbol =
-    isRegexMatch "[~`\!@#\$%\^\&\*\(\)-=_+\[\]\{\}\\\|;:'\",\<\.\>/\?]"
+let symbols = "[~`\!@#\$%\^\&\*\(\)-=_+\[\]\{\}\\\|;:'\",\<\.\>/\?]"
+
+let private isSymbol =
+    isRegexMatch symbols
     |> checkValue
     |> whenSome
 
