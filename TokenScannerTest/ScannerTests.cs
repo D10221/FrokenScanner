@@ -83,7 +83,7 @@ namespace ScannerCsharptest
             AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(scan("x => x == x = true")), ","));
         }
         [TestMethod]
-        public void FailsToFindScanlet()
+        public void TakeManyTest()
         {
             var all = scan("< <= <[ <{ <: << <-").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
             AreEqual("<", all[0]);
