@@ -8,6 +8,7 @@
     <Compile Include="Matching.fs" />
     <Compile Include="Scanlet.fs" />
     <Compile Include="Scanlets.fs" />
+    <Compile Include="Symbols.fs" />
     <Compile Include="Scanner.fs" />
     <Compile Include="Scan.fs" />
   </ItemGroup>
