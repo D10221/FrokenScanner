@@ -1,11 +1,11 @@
-module Tests
+module ScanletsTests
 
 open Xunit
 open TokenScanner.Matching
 open TokenScanner.Scanlets
 
 [<Fact>]
-let ``My test``() =
+let Test1() =
     let isIdentifier =
         Option.isSome
         |> And

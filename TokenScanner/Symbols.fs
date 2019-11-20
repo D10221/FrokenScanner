@@ -33,7 +33,7 @@ let private isIdentifier =
     |> checkValue
     |> whenSome
 
-let symbols = "[~`\!@#\$%\^\&\*\(\)-=_+\[\]\{\}\\\|;:'\",\<\.\>/\?]"
+let symbols = "[~`\!@#\$%\^\&\*\(\)-=_+\[\]\{\}\\\|;\:'\",\<\.\>/\?]"
 
 let private isSymbol =
     isRegexMatch symbols
@@ -48,6 +48,8 @@ let scanlets some =
     | None -> raise (ArgumentException("can't be None", "some"))
     | some when some |> isSymbol -> Take
     | x when isSpace x -> TakeWhile isSpace |> StartWith
+    | Some('\r') -> Take
+    | Some('\n') -> TakeOne '\r' |> StartWith 
     | x when isIdentifier x ->
         TakeWhile
             (isIdentifier

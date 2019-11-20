@@ -1,4 +1,4 @@
-module SplitSymbolsTest
+module SymbolsTest
 
 open Xunit
 open TokenScanner.Symbols
@@ -32,10 +32,11 @@ let SplitsAll() =
 
 [<Fact>] // TODO
 let SplitsMore() =
-    let extra = "123" + "abc" + "1.1" + " " + ".1" + "\n" + "\r\n"
+    let extra = "123" + "abc" + "1.1" + " " + ".1" + "\n" + "\r\n" + "\t"
     let scanned =
-        scan <| symbols + extra
+        (symbols + extra) 
+        |>scan 
         |> toStrings
         |> join
     //
-    areEqual symbols (scanned + extra)
+    scanned |> areEqual <| symbols + extra 
