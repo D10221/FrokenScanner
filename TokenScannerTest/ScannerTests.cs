@@ -85,11 +85,14 @@ namespace ScannerCsharptest
         [TestMethod]
         public void FailsToFindScanlet()
         {
-            // TO be removed when "&"'s scanlet is implemented
-            ThrowsException<NotImplementedException>(() =>
-            {
-                scan("&");
-            });
+            var all = scan("< <= <[ <{ <: << <-").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            AreEqual("<", all[0]);
+            AreEqual("<=", all[1]);
+            AreEqual("<[", all[2]);
+            AreEqual("<{", all[3]);
+            AreEqual("<:", all[4]);
+            AreEqual("<<", all[5]);
+            AreEqual("<-", all[6]);
         }
         private static List<string> scan(string text)
         {
