@@ -5,7 +5,7 @@ open Types
 /// <summary>
 /// Scanlet: Match Sequence
 /// </summary>
-let TakeMany (expected: List<char>) (next: Queue) =
+let TakeMany (expected: List<'a>) (next: Queue<'a>) =
     let ret =
         [ for x in expected do
             let peek = next (false)
@@ -14,7 +14,7 @@ let TakeMany (expected: List<char>) (next: Queue) =
 ///<summary>
 /// Scanlet: Matches peek with y else or None with x
 ///</summary>
-let TakeOne  y  (next: Queue) =
+let TakeOne  y  (next: Queue<'a>) =
     let peek () = next (false)
     let next () = next (true)
     match peek() with
@@ -26,7 +26,7 @@ let TakeOne  y  (next: Queue) =
 ///<summary>
 /// Scanlet: Matches peek with y or z. else or None with x
 ///</summary>
-let TakeTwo  ((y, z): char * char) (next: Queue) =
+let TakeTwo  ((y, z): 'a * 'a) (next: Queue<'a>) =
     match next (false) with
     | None -> [  ]
     | some when some = Some(y) || some = Some(z) ->
@@ -36,17 +36,17 @@ let TakeTwo  ((y, z): char * char) (next: Queue) =
 /// <summary>
 /// collect while token is of the matching kind
 /// </summary>
-let TakeWhile (isMatch: Option<char> -> bool) (next: Queue) =
+let TakeWhile (isMatch: Option<'a> -> bool) (next: Queue<'a>) =
     let peek () = next (false)
     let next () = next (true)
-    let mutable collected: option<char> list = []
+    let mutable collected: option<'a> list = []
     while (isMatch (peek())) do
         collected <- collected @ [ next() ]
     collected
 ///<sumary>
 /// Scanlet of Scanlet: prepend x to scanlet result
 ///</sumary>
-let StartWith (scanlet: Scanlet) target (next: Queue) =
+let StartWith (scanlet: Scanlet<'a>) target (next: Queue<'a>) =
     let ret = target :: (scanlet next)
     ret
 ///<sumary>
@@ -54,17 +54,4 @@ let StartWith (scanlet: Scanlet) target (next: Queue) =
 /// returns x
 /// passthru
 ///</sumary>
-let Take (x: Option<char>) (next: Queue) = [ x ]
-/// <summary>
-/// Scanlet: Hard coded Triad scanlet: erasier to read, Scans for '+' or '+=' or '++'
-/// </summary>
-let Plus(next: Queue) =
-    let peek () = next (false)
-    let next () = next (true)
-    match peek() with
-    | Some('=')
-    | Some('+') ->
-        ([ Some('+')
-           next() ])
-    // ..else
-    | _ -> ([ Some('+') ])
+let Take (x: Option<'a>) (next: Queue<'a>) = [ x ]

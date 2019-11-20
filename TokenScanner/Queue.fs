@@ -3,15 +3,15 @@
 ///<summary>
 /// Creeates Peek And Next hold index state
 ///</summary>
-let Queue(input: string): bool -> char option =
+let Queue(input: string) =
     let mutable index = -1
-    let ok unit = (index + 1) < (input.Length)
+    let ok () = (index + 1) < (input.Length)
 
-    let peek unit =
+    let peek () =
         if ok() then Some(input.[index + 1])
         else None
 
-    let fwd unit =
+    let fwd () =
         if ok() then
             index <- index + 1
             Some(input.[index])

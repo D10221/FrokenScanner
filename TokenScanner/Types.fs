@@ -1,12 +1,5 @@
 module TokenScanner.Types
-/// <summarY>
-/// increase index and return current
-/// parameter is true then consume/move/advance else peek 
-/// </summary>
-type Queue = bool -> char option
 
-type Scanlet =  Queue -> List<Option<char>>
+type Queue<'a> = bool -> 'a option
 
-type MatchToken = Option<char> -> bool
-
-type ScanletEntry = Option<char> -> Scanlet
+type Scanlet<'a> = (Queue<'a>) -> List<Option<char>>

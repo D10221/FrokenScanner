@@ -2,7 +2,7 @@
 
 open Types
 
-let rec Scanner scanlets (queue: Queue) =
+let rec Scanner scanlets (queue: Queue<'a>) =
     // :recursor
     let takeNext scanlet = scanlet queue :: Scanner scanlets queue
 
