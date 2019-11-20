@@ -1,1 +1,6 @@
-module Program = let [<EntryPoint>] main _ = 0
+module Program
+
+[<EntryPoint>] 
+let main _ = 
+    SplitSymbolsTest.Splits()
+    0
