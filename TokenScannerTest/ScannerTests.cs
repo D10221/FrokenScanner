@@ -24,7 +24,7 @@ namespace ScannerCsharptest
             AreEqual(results[0], "a");
             AreEqual(results[1], "+");
             AreEqual(results[2], "b");
-        }        
+        }
         [TestMethod]
         public void Compounds()
         {
@@ -59,8 +59,7 @@ namespace ScannerCsharptest
         [TestMethod]
         public void FindsNewLine()
         {
-            var all = scan(" \n ");
-            AreEqual("\n", all[1]);
+            AreEqual("\n", scan(" \n ")[1]);
             AreEqual("\r\n", scan(" \r\n ")[1]);
             AreEqual("\r", scan(" \r ")[1]);
             AreEqual("\n", scan(" \n ")[1]);
@@ -84,9 +83,11 @@ namespace ScannerCsharptest
             AreEqual("x,=>,x,==,x,=,true", join(NoSpaces(scan("x => x == x = true")), ","));
         }
         [TestMethod]
-        public void FailsToFindScanlet (){
+        public void FailsToFindScanlet()
+        {
             // TO be removed when "&"'s scanlet is implemented
-            ThrowsException<NotImplementedException>(()=>{
+            ThrowsException<NotImplementedException>(() =>
+            {
                 scan("&");
             });
         }

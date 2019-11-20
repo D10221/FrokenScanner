@@ -9,4 +9,4 @@ type Scanlet =  Queue -> List<Option<char>>
 
 type MatchToken = Option<char> -> bool
 
-type ScanletEntry = MatchToken * (Option<char> -> Queue -> List<Option<char>>)
+type ScanletEntry = Option<char> -> Scanlet

@@ -3,35 +3,28 @@
 /// </summary>
 module TokenScanner.Scanlets
 
-open System.Text.RegularExpressions
 open Scanlet
 open Matching
-open Types
+open System
 
-let isDigit (o: Option<char>) = o <> None && Regex("\d").IsMatch(o.Value.ToString())
-let isWord (o: Option<char>) =
-    o <> None && not (isDigit o) && // not checking for digit results in order sensitive match
-    Regex("\w").IsMatch(o.Value.ToString())
-let isWordOrDigit (peek: Option<char>) = isWord (peek) || isDigit (peek)
-let isDot o = o <> None && o.Value = '.'
-let isDigitOrDot o = o <> None && isDigit (o) || isDot (o)
-let isSpace (o: Option<char>) =
-    o <> None && o.Value <> '\n' && o.Value <> '\r' && Regex("\s").IsMatch(o.Value.ToString())
+let whenSome f = Option.isSome |> And f
+let isSome x y = y = Some x
 
-let xxx: ScanletEntry = valueMatch <| equals '=', TakeTwo('=', '>') |> StartWith
-let xx1: ScanletEntry = valueMatch <| equals '+', TakeTwo('=', '+') |> StartWith
-let xx2: ScanletEntry = valueMatch <| equals '-', TakeTwo('=', '-') |> StartWith
-let xx3: ScanletEntry = valueMatch <| equals '\n', Take
-let xx4: ScanletEntry = valueMatch <| equals '\r', TakeOne '\n' |> StartWith
-let xx5: ScanletEntry = isSpace, TakeWhile isSpace |> StartWith
-let xx6: ScanletEntry = isWord, TakeWhile isWordOrDigit |> StartWith
-let xx7: ScanletEntry = isDigit, TakeWhile isDigitOrDot |> StartWith
-/// <summary>
-/// Configuration
-/// </summary>
-let scanlets: List<ScanletEntry> = [ xxx; xx1; xx2; xx3; xx4; xx5; xx6; xx7 ]
-// TODO a.a ? No, is parser's job
-// TODO .a  ? No, is parser's job
-// TODO .1 ?
-// TODO 1D ?
-// TODO 1x0 ?
+let isSpace = isRegexMatch "[^\S\r\n]" |> checkValue |> whenSome 
+let isDigit = isRegexMatch "\d" |> checkValue |> whenSome
+let isDot = isSome '.'
+let isLetter = isRegexMatch "[a-zA-Z]" |> checkValue |> whenSome
+let isIdentifier = isRegexMatch "[a-zA-Z_\$#@]" |> checkValue |> whenSome
+
+let scanlets some =
+    match some with
+    | None -> raise (ArgumentException("can't be None", "some"))
+    | Some '=' -> TakeTwo('=', '>') |> StartWith 
+    | Some '+' -> TakeTwo('=', '+') |> StartWith
+    | Some '-' -> TakeTwo('=', '-') |> StartWith
+    | Some '\n' -> Take
+    | Some '\r' -> TakeOne '\n' |> StartWith
+    | x when isSpace x -> TakeWhile isSpace  |> StartWith
+    | x when isIdentifier x -> TakeWhile(isIdentifier |> Or isDigit) |> StartWith
+    | x when isDigit x -> TakeWhile(Or isDigit isDot) |> StartWith
+    | _ -> raise (NotImplementedException((sprintf "'%c' is Not Implemented" some.Value)))
