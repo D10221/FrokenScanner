@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Test.fs"/>
+    <Compile Include="Scanlets.fs"/>
     <Compile Include="Scan.fs" />
   </ItemGroup>
 
