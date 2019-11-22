@@ -1,4 +1,4 @@
-module TokenScanner.RecursiveScanner
+﻿module TokenSplitter.Scan
 
 open System.Text.RegularExpressions
 

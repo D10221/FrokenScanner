@@ -1,7 +1,7 @@
-module RecursiveScannerTest
+module Tests
 
 open Xunit
-open TokenScanner.RecursiveScanner
+open TokenSplitter.Scan
 
 let equals x y = Assert.Equal(x, y)
 

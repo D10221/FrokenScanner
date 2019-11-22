@@ -7,9 +7,5 @@ let main _ =
     ScanletsTests.Test3()
     SymbolsTest.Splits()
     SymbolsTest.SplitsAll()
-    SymbolsTest.SplitsMore()
-    RecursiveScannerTest.Test1()
-    RecursiveScannerTest.Test2()
-    RecursiveScannerTest.Test3()
-    RecursiveScannerTest.Test4()
+    SymbolsTest.SplitsMore()    
     0
