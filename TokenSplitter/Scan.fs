@@ -6,14 +6,21 @@ open TokenSplitter.Scanlets
 let private concat = List.fold (fun a b -> a + b.ToString()) ""
 
 let private append x xxx = (x |> concat, xxx)
-///
-///
-///
+
+/// <summary>
+/// Scan char list and split on
+/// Symbol,
+/// Digit,
+/// Word/Identifier,
+/// Spaces (grouped)
+/// New line
+/// </summary>
 let rec Scan input =
+    // recurse
     let scan head tail = head.ToString() :: Scan tail
 
     match input with
-    | [] -> []
+    | [] -> [] // done
     | head :: tail ->
         match head with
         | x when x |> isSymbol -> (x, tail) ||> scan
