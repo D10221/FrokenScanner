@@ -11,5 +11,6 @@
     <Compile Include="Symbols.fs" />
     <Compile Include="Scanner.fs" />
     <Compile Include="Scan.fs" />
+    <Compile Include="RecursiveScanner.fs" />
   </ItemGroup>
 </Project>

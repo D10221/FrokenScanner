@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="ScanletsTests.fs" />
     <Compile Include="SymbolsTest.fs" />
+    <Compile Include="RecursiveScannerTest.fs"/>
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

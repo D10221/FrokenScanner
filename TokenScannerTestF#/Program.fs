@@ -8,4 +8,8 @@ let main _ =
     SymbolsTest.Splits()
     SymbolsTest.SplitsAll()
     SymbolsTest.SplitsMore()
+    RecursiveScannerTest.Test1()
+    RecursiveScannerTest.Test2()
+    RecursiveScannerTest.Test3()
+    RecursiveScannerTest.Test4()
     0
