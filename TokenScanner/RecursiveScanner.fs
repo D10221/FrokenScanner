@@ -19,8 +19,8 @@ let private isSymbol =
 let isRegexMatch pattern = Regex(pattern).IsMatch
 
 let private isWord c = c.ToString() |> isRegexMatch "[a-zA-Z_$#@]"
-
 let private isDigit c = c.ToString() |> isRegexMatch "\d"
+let private isWordOrDigit x = isWord x || isDigit x
 
 let concat = List.fold (fun a b -> a + b.ToString()) ""
 
@@ -37,30 +37,43 @@ let takeNextIfMatch y head tail =
     (head :: next |> concat, nextTail)
 
 let rec takeWhile isMatch head tail =
+    let append next tail = (head :: next, tail)
+    let take = takeWhile isMatch
     match tail with
-    | [] -> (head :: [], [])
+    | [] -> ([ head ], [])
     | next :: nextTail ->
         match next with
         | x when isMatch x ->
-            let (b, bbb) = (takeWhile isMatch next nextTail)
-            (head :: b, bbb)
-        | _ -> (head :: [], tail)
-
+            (next, nextTail)
+            ||> take
+            ||> append
+        | _ -> ([ head ], tail)
+///
+///
+///
 let rec Scan input =
-
-    let scan head tail = 
-        head.ToString() :: Scan tail
-
+    let scan head tail = head.ToString() :: Scan tail
+    let append x xxx = (x |> concat, xxx)
     match input with
     | [] -> []
     | head :: tail ->
         match head with
         | x when x |> isSymbol -> (x, tail) ||> scan
-        | x when x |> isDigit -> (x, tail) ||> scan
+        | x when x |> isDigit ->
+            (x, tail)
+            ||> takeWhile isDigit
+            ||> append
+            ||> scan
         | x when x |> isWord ->
-            let (x1, xxx) = takeWhile (fun x -> isWord x || isDigit x) x tail
-            (x1 |> concat, xxx) ||> scan
-        | x when x |> isSpace -> (x, tail) ||> scan
+            (x, tail)
+            ||> takeWhile isWordOrDigit
+            ||> append
+            ||> scan
+        | x when x |> isSpace ->
+            (x, tail)
+            ||> takeWhile isSpace
+            ||> append
+            ||> scan
         // ... newLine
         | '\n' -> scan head tail
         | '\r' as x ->
