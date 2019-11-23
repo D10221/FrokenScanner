@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+dotnet run "a*b+c*d"
