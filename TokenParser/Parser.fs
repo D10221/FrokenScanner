@@ -1,56 +1,57 @@
 ﻿module TokenParser.Parser
 
 open System.Text.RegularExpressions
+open Expressions
 
-type Expr = char * string * obj
+let parsePrefix token tail =
+    match token with
+    | x when x.ToString() |> Regex("\w").IsMatch -> (nameExpr x, tail)
+    | x when x.ToString() |> Regex("\d").IsMatch -> (numberExp x, tail)
+    | x -> failwithf "Prefix: %A not implemented" x
 
-let prefixExpr x: Expr = (x, "prefix", [] :> obj)
+let getPrecedence x =
+    match x with
+    | '+' -> 1
+    | '*' -> 2
+    | _ -> 0
 
-let binaryExpr x left right: Expr = (x, "postfix", [ left; right] :> obj)
+let binaryParselet x parseNext left =
+    let (right, tail) = parseNext (getPrecedence (x))
+    (binaryExpr x left right, tail)
 
-let peek test queue = 
-    match queue with 
-    |[] -> false
-    |head:: _ -> 
-        test head
-        
-let parsePrefix queue =
-    match queue with
-    | [] -> (None, [])
-    | token :: tail ->
-        match token with
-        | x when x.ToString()
-                 |> Regex("\w").IsMatch
-                 || x.ToString() |> Regex("\d").IsMatch ->
-            let expr = prefixExpr x
-            (Some(expr), tail)
-        | x -> failwithf "Prefix: %A not implemented" x
+let getPostfixParselet token =
+    match token with
+    | '+'
+    | '*' as x -> binaryParselet x
+    | x -> failwithf "Postfix: %A not implemented" x
 
-let rec parsePostfix parseExpr queue left =
+/// <summary>
+/// replaces while loop
+/// </summary>
+let rec parseprecedence parseExpr precedence left queue =
     match queue with
     | [] -> (left, queue)
     | token :: tail ->
-        match token with
-        | '*'       
-        | '+' as x ->
-            let (right, rest) = parseExpr tail
-            let expr = binaryExpr x left right
-            if peek (fun x-> x = '+' || x = '*' ) rest then 
-                parsePostfix parseExpr rest expr
-            else
-            (expr, rest)
-        //| x -> failwithf "Postfix: %A not implemented" x
-        | _ -> (left, queue)
+        let nextPrecedence = getPrecedence token
+        if (nextPrecedence) < precedence then
+            (left, queue)
+        else
+            let parseNext = parseExpr tail //
+            let parselet = getPostfixParselet token parseNext
+            let (left, rest) = parselet left
+            parseprecedence parseExpr precedence left rest
 
-let rec parseExpr queue =
-    let (left, rest) = parsePrefix queue
-    let (left, tail) = parsePostfix parseExpr rest left.Value
-    (left, tail)
+let rec parseExpr queue precedence =
+    match queue with
+    | token :: tail ->
+        let (left, rest) = parsePrefix token tail
+        parseprecedence parseExpr precedence left rest
+    | [] -> failwith "queue can't be empty"
 
 let rec parse input =
     match input with
     | [] -> []
     | _ ->
-        let (exp, tail) = parseExpr input
+        let (exp, tail) = parseExpr input 0
         let ret = exp :: parse tail
         ret
