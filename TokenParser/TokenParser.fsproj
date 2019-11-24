@@ -7,6 +7,9 @@
   <ItemGroup>
     <Compile Include="Types.fs"/>
     <Compile Include="Expressions.fs"/>
+    <Compile Include="Peek.fs"/>
+    <Compile Include="Precedence.fs"/>
+    <Compile Include="Parselets.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Visitor.fs"/>
   </ItemGroup>
