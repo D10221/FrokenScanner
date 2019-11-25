@@ -1,7 +1,7 @@
 module Tests
 
 open Xunit
-open TokenParser.Parser
+open TokenParser.Parse
 open TokenParser.Visitor
 
 let equals a b =
