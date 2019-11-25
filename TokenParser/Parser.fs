@@ -17,7 +17,7 @@ let Parser getPrecedence getPrefixParselet getPostfixParselet =
                  <| q -> (left, queue) // may not process!
         | [] -> (left, queue) // nothing else to process
         | token :: tail ->
-            let parselet: Parselet = getPostfixParselet token left
+            let parselet: Parselet<'a> = getPostfixParselet token left
             let (left, rest) = parselet  parseExpr tail token
             loop left rest
 
@@ -26,7 +26,7 @@ let Parser getPrecedence getPrefixParselet getPostfixParselet =
         fun queue precedence ->
             match queue with
             | token :: tail ->
-                let parselet: Parselet = getPrefixParselet token
+                let parselet: Parselet<'a> = getPrefixParselet token
                 let (left, rest) = parselet parseExpr tail token
                 // may return juts left or loop postfix/precedence
                 (parsePostFix parseExpr) precedence left rest

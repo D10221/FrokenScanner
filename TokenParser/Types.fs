@@ -1,28 +1,27 @@
 module TokenParser.Types
 
-
-type Expr = 
-    |NameExpression of NameExpression 
-    |NumberExpression of NumberExpression 
-    |BinaryExpression of BynaryExpression
-and BynaryExpression = {    
-    token: char    
-    left: Expr
-    right: Expr
+type Expr<'a> = 
+    |NameExpression of NameExpression<'a>
+    |NumberExpression of NumberExpression<'a>
+    |BinaryExpression of BynaryExpression<'a>
+and BynaryExpression<'a> = {    
+    token: 'a    
+    left: Expr<'a>
+    right: Expr<'a>
 }
-and NumberExpression = {
-    token: char    
+and NumberExpression<'a> = {
+    token: 'a
 }
-and NameExpression = {
-    token: char    
+and NameExpression<'a> = {
+    token: 'a
 }
 
 // queue -> precedence -> (Expr, tail)
-type Parse = char list -> int -> (Expr * List<char>)
+type Parse<'a> = 'a list -> int -> (Expr<'a> * List<'a>)
 
 // parse -> queue -> token - Expr
-type Parselet = Parse -> char list -> char -> (Expr * List<char>)
+type Parselet<'a> = Parse<'a> -> 'a list -> 'a -> (Expr<'a> * List<'a>)
 
 /// left -> Parselet
-type PostfixParselet = Expr -> Parselet
+type PostfixParselet<'a> = Expr<'a> -> Parselet<'a>
 

@@ -4,5 +4,6 @@ open System
 
 [<EntryPoint>]
 let main argv =
-    Tests.ItWorks()
+    Tests.``It Works With Chars``()
+    Tests.``It Works With Strings``()
     0 

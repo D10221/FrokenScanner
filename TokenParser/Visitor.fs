@@ -2,9 +2,9 @@ module TokenParser.Visitor
 
 open Types
 
-let rec visitMany (exprs: Expr list) =
+let rec visitMany (exprs: Expr<'a> list) =
 
-    let rec visit (expr: Expr) =
+    let rec visit (expr: Expr<'a>) =
         match expr with
         | NameExpression e -> sprintf "'%s'" (e.token.ToString())
         | NumberExpression e -> sprintf "'%s'" (e.token.ToString())
