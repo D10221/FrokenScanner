@@ -1,8 +1,8 @@
-module TokenParser.Parse
+module Parser.Parse
 
 open System.Text.RegularExpressions
-open Parser
-open Parselets
+open TokenParser.Parser
+open TokenParser.Parselets
 
 let StringsParser () =
     /// 

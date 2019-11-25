@@ -8,9 +8,7 @@
     <Compile Include="Types.fs"/>
     <Compile Include="Peek.fs"/>    
     <Compile Include="Parselets.fs" />
-    <Compile Include="Parser.fs" />
-    <Compile Include="Parse.fs" />
-    <Compile Include="Visitor.fs"/>
+    <Compile Include="Parser.fs" />        
   </ItemGroup>
 
 </Project>
