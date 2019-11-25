@@ -3,19 +3,33 @@ module TokenParser.Parselets
 open System.Text.RegularExpressions
 open Expressions
 open Precedence
+open Peek
+open Types
 
-let parsePrefix token tail =
+let nameExprParselet (parse: Parse) queue token =    
+    // if peekTest (fun x -> x = ' ') queue then failwithf "next can't be %A" ' '
+    let expr = nameExpr token
+    (expr, queue)
+
+let numberExprParselet (parse: Parse) queue token =
+    // if peekTest (fun x -> x = ' ') queue then failwithf "next can't be %A" ' '
+    let expr = nameExpr token
+    (expr, queue)
+
+let getPrefixParselet token =
     match token with
-    | x when x.ToString() |> Regex("\w").IsMatch -> (nameExpr x, tail)
-    | x when x.ToString() |> Regex("\d").IsMatch -> (numberExp x, tail)
+    | x when x.ToString() |> Regex("\w").IsMatch -> nameExprParselet
+    | x when x.ToString() |> Regex("\d").IsMatch -> numberExprParselet
     | x -> failwithf "Prefix: %A not implemented" x
 
-let binaryParselet x parseNext left =
-    let (right, tail) = parseNext (getPrecedence (x))
-    (binaryExpr x left right, tail)
+let binaryParselet (parse: Parse) queue token (left: Expr) =
+    let myPrecedence = getPrecedence (token)
+    let (right, tail) = parse queue (myPrecedence)
+    let expr = binaryExpr token left right
+    (expr, tail)
 
 let getPostfixParselet token =
     match token with
     | '+'
-    | '*' as x -> binaryParselet x
+    | '*' -> binaryParselet
     | x -> failwithf "Postfix: %A not implemented" x

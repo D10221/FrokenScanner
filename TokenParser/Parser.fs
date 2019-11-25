@@ -12,23 +12,25 @@ let isNextPrecedenceLowerThan precedence = (fun nextToken -> getPrecedence nextT
 let rec parsePostFix parseExpr precedence left queue =
     /// recurse
     let loop = parsePostFix parseExpr precedence
-    // .. 
+    // .. moving this question out , will force ask again 
     if queue |> isNextPrecedenceLowerThan precedence then
         (left, queue) // may not process!
     else
         // while next precedence higher than precedence
         match queue with
         | [] -> (left, queue) // nothing else to process
-        | token :: tail ->
-            let parseNext = parseExpr tail // don't send the tail down
-            let parselet = getPostfixParselet token parseNext
-            let (left, rest) = parselet left
+        | token :: tail ->            
+            let parselet = getPostfixParselet token
+            let (left, rest) = parselet parseExpr tail token left
             loop left rest
+
 
 let rec parseExpr queue precedence =
     match queue with
     | token :: tail ->
-        let (left, rest) = parsePrefix token tail
+        let parselet = getPrefixParselet token 
+        let (left, rest) = parselet parseExpr tail token
+        // may return juts left or loop postfix/precedence 
         parsePostFix parseExpr precedence left rest
     | [] -> failwith "queue can't be empty"
 
