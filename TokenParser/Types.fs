@@ -23,5 +23,5 @@ type Parse<'a> = 'a list -> int -> (Expr<'a> * List<'a>)
 type Parselet<'a> = Parse<'a> -> 'a list -> 'a -> (Expr<'a> * List<'a>)
 
 /// left -> Parselet
-type PostfixParselet<'a> = Expr<'a> -> Parselet<'a>
+type InfixParselet<'a> = Expr<'a> -> Parselet<'a>
 
