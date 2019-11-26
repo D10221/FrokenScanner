@@ -34,7 +34,7 @@ let Test4() =
 [<Fact>]
 let Test5() =
     let result = Scan [ '1'; '1'; 'a'; 'a' ]
-    equals ("11", "digit") result.[0]
+    equals ("11", "number") result.[0]
     equals ("aa", "word") result.[1]
 
 [<Fact>]

@@ -1,9 +1,10 @@
 module Program 
 
 open System
+open Tests.Parse
 
 [<EntryPoint>]
 let main argv =
-    Tests.``It Works With Chars``()
-    Tests.``It Works With Strings``()
+    ``It Works With Chars``()
+    ``It Works With Strings``()
     0 

@@ -35,7 +35,7 @@ let rec Scan input =
         | x when x |> isDigit ->
             (x, tail)
             ||> takeWhile isDigit
-            ||> append "digit"
+            ||> append "number"
             ||> scan
         | x when x |> isWord ->
             (x, tail)

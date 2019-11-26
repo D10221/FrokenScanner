@@ -1,4 +1,4 @@
-module Tests
+module Tests.Parse
 
 open Xunit
 open Parser.Parse
