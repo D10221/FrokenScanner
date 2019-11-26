@@ -12,9 +12,9 @@ let Parser getPrecedence getPrefixParselet getPostfixParselet =
         let loop = parsePostFix parseExpr precedence
         // while next precedence higher than precedence
         match queue with
-        | q when (fun nextToken -> getPrecedence nextToken < precedence)
+        | q when (fun nextToken -> getPrecedence nextToken <= precedence)
                  |> peekTest
-                 <| q -> (left, queue) // may not process!
+                 <| q -> (left, queue) // break loop
         | [] -> (left, queue) // nothing else to process
         | token :: tail ->
             let parselet: Parselet<'a> = getPostfixParselet token left

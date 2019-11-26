@@ -4,12 +4,43 @@ open TokenParser.Parselets
 open TokenParser.Parser
 open System.Text.RegularExpressions
 
-let Parser () =
-    /// 
+let Parser() =
+    // Broken precedence
+    // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/operator-precedence-transact-sql?view=sql-server-ver15
+    // https://www.sqlite.org/lang_expr.html
     let getPrecedence x =
-        match x with
-        | "+" -> 1
-        | "*" -> 2
+        match x with        
+        | "~" -> 1 // (Bitwise NOT)
+        | "*"
+        | "/"
+        | "%" -> 2        
+        | "+" // (Positive) (Addition) (Concatenation) 
+        | "-" // (Negative) (Substraction) 
+        | "&" // (Bitwise AND)
+        | "^" // (Bitwise Exclusive OR)
+        | "|" -> 3// (Bitwise OR)        
+        // (Comparison operators)
+        | "==" // equals
+        | ">"
+        | "<"
+        | ">="
+        | "<="
+        | "<>"
+        | "!="
+        | "!>"
+        | "!>" ->  4
+        | "NOT" -> 5
+        | "&&"
+        | "AND" -> 6
+        | "ALL"
+        | "ANY"
+        | "BETWEEEN"
+        | "IN"
+        | "LIKE"
+        | "OR"
+        | "||"
+        | "SOME" -> 7
+        | "=" -> 8 // Assignment
         | _ -> 0
     ///
     let getPostfixParselet token =
@@ -31,5 +62,5 @@ let Parser () =
         | _ ->
             let (exp, tail) = parseExpr input 0
             exp :: parse tail
-    // 
+    //
     parse
