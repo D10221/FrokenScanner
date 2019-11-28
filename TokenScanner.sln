@@ -17,6 +17,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TokenParser", "TokenParser\
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TokenParserTest", "TokenParserTest\TokenParserTest.fsproj", "{8D18736B-E908-4186-B019-D874BCD96243}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MiniParser", "MiniParser\MiniParser.fsproj", "{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,5 +116,17 @@ Global
 		{8D18736B-E908-4186-B019-D874BCD96243}.Release|x64.Build.0 = Release|Any CPU
 		{8D18736B-E908-4186-B019-D874BCD96243}.Release|x86.ActiveCfg = Release|Any CPU
 		{8D18736B-E908-4186-B019-D874BCD96243}.Release|x86.Build.0 = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|x64.Build.0 = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{C59ABBE6-CFDB-4C2C-BA0B-3B01ECB046B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
