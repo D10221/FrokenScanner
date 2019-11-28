@@ -19,9 +19,7 @@ and NameExpression<'a> = {
     token: 'a
 }
 
-let rec visitMany (exprs: Expr<'a> list) =
-
-    let rec visit (expr: Expr<'a>) =
+let rec visit (expr: Expr<'a>) =
         match expr with
         | NameExpression e -> sprintf "%A" (e.token)
         | NumberExpression e -> sprintf "%A" (e.token)
@@ -30,13 +28,14 @@ let rec visitMany (exprs: Expr<'a> list) =
             let right = visit (e.right)
             sprintf "(%s %A %s)" left (e.token) right
 
+let rec visitMany (exprs: Expr<'a> list) =    
     match exprs with
     | [] -> []
     | (expr :: tail) ->
         let visited = (visit expr)
         visited :: visitMany tail
 
-
+// Sql operator precedence
 let getPrecedence x =
         match x with
         | "~" -> 1
@@ -105,6 +104,6 @@ let main argv =
     let input = ["a";"*";"b";"+";"c";"*";"d"]
     let precedence = 0 
     let (expr, _) = parseExpr input 0
-    (input|> List.fold (+) "" , visitMany [expr])
+    (input|> List.fold (+) "" , visit expr)
     ||> printf "%A\n%A\n"
     0 // return an integer exit code
