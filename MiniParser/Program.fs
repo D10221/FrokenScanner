@@ -36,7 +36,7 @@ let rec visitMany (exprs: Expr<'a> list) =
         visited :: visitMany tail
 
 // reversed Sql operator precedence
-let getPrecedence x =
+let Precedence x =
         match x with
         | "~" -> 8
         | "*"
@@ -72,21 +72,18 @@ let peek queue =
     | [] -> None
     | head:: _ -> Some(head)
 
-let peekTest test queue  =
-    match peek queue with
-    | None -> false
-    | some -> test (some.Value)
-
-
 let rec parseExpr queue precedence =
         match queue with
         | token :: tail ->                        
-            //...while precedence <= peek next precedence
+            /// <summary>
+            ///  while precedence <= peek next precedence
+            ///  parse right asssociative expression
+            /// </summary>
             let rec loop left leftTail =
                 match leftTail with
-                | [] -> (left, leftTail)
+                | [] -> (left, leftTail) //done
                 | infix :: infixTail ->    
-                    let infixPrecedence = getPrecedence infix
+                    let infixPrecedence = Precedence infix
                     if precedence <= infixPrecedence   then
                         let binaryParselet() =
                             let (right, rightTail) = parseExpr infixTail infixPrecedence

@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Parser/Parse.fs"/>
+    <Compile Include="Parser/Precedence.fs"/>
+    <Compile Include="Parser/StringsParser.fs" />
+    <Compile Include="Parser/CharsParser.fs"/>    
     <Compile Include="Parser/Visitor.fs" />
     <Compile Include="Tests.fs" />    
     <Compile Include="Program.fs" />

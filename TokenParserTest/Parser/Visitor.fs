@@ -2,9 +2,7 @@ module Parser.Visitor
 
 open TokenParser.Types
 
-let rec visitMany (exprs: Expr<'a> list) =
-
-    let rec visit (expr: Expr<'a>) =
+let rec visit (expr: Expr<'a>) =
         match expr with
         | NameExpression e -> sprintf "%A" (e.token)
         | NumberExpression e -> sprintf "%A" (e.token)
@@ -13,6 +11,7 @@ let rec visitMany (exprs: Expr<'a> list) =
             let right = visit (e.right)
             sprintf "(%s %A %s)" left (e.token) right
 
+let rec visitMany (exprs: Expr<'a> list) =    
     match exprs with
     | [] -> []
     | (expr :: tail) ->

@@ -1,8 +1,10 @@
 module Tests
 
 open Xunit
-open Parser.Parse
+open Parser.StringsParser
+open Parser.CharsParser
 open Parser.Visitor
+open Parser.Precedence
 open System.Text.RegularExpressions
 
 let equals a b =
@@ -11,7 +13,7 @@ let equals a b =
 [<Fact>]
 let ``It Works With Strings``() =
     [ for c in "a*b+a*b" -> c |> sprintf "%c" ]
-    |> StringsParser()
+    |> StringsParser Precedence
     |> visitMany
     |> List.item 0
     |> (fun x -> Regex.Replace(x, "\"", ""))

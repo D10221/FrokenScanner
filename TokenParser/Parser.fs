@@ -3,33 +3,30 @@
 open Peek
 open Types
 
-let Parser getPrecedence getPrefixParselet getPostfixParselet = 
-    /// <summary>
-    /// replaces while loop
-    /// </summary>
-    let rec parsePostFix = fun  parseExpr precedence left queue  ->
-        /// recurse
-        let loop = parsePostFix parseExpr precedence
-        // while next precedence higher than precedence
+let Parser getPrecedence getPrefixParselet getPostfixParselet =
+    //
+    let rec parseExpr queue precedence =
         match queue with
-        | q when (fun nextToken -> getPrecedence nextToken < precedence)
-                 |> peekTest
-                 <| q -> (left, queue) // may not process!
-        | [] -> (left, queue) // nothing else to process
         | token :: tail ->
-            let parselet: Parselet<'a> = getPostfixParselet token left
-            let (left, rest) = parselet  parseExpr tail token
-            loop left rest
+            /// <summary>
+            ///  while precedence <= peek next precedence
+            ///  parse right asssociative expression
+            /// </summary>
+            let rec loopWhile test left leftTail =
+                match leftTail with
+                | [] -> (left, leftTail) //done
+                | infix :: infixTail ->
+                    if test infix then
+                        let parselet = getPostfixParselet infix left
+                        let (left, rest) = parselet parseExpr infixTail infix
+                        loopWhile test left rest
+                    // ...
+                    else
+                        (left, leftTail)
+            // ...
+            let parselet: Parselet<'a> = getPrefixParselet token
+            parselet parseExpr tail token 
+            ||> loopWhile (fun infix -> precedence <= getPrecedence infix)
+        | [] -> failwith "queue can't be empty" // avoid? (None, [])
 
-    ///
-    let rec parseExpr  =                
-        fun queue precedence ->
-            match queue with
-            | token :: tail ->
-                let parselet: Parselet<'a> = getPrefixParselet token
-                let (left, rest) = parselet parseExpr tail token
-                // may return juts left or loop postfix/precedence
-                (parsePostFix parseExpr) precedence left rest
-            | [] -> failwith "queue can't be empty" // avoid? (None, [])
-    
     parseExpr
