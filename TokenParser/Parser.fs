@@ -9,24 +9,24 @@ let Parser getPrecedence getPrefixParselet getPostfixParselet =
         match queue with
         | token :: tail ->
             /// <summary>
-            ///  while precedence <= peek next precedence
             ///  parse right asssociative expression
             /// </summary>
             let rec loopWhile test left leftTail =
+                let loop = loopWhile test
                 match leftTail with
                 | [] -> (left, leftTail) //done
                 | infix :: infixTail ->
                     if test infix then
                         let parselet = getPostfixParselet infix left
-                        let (left, rest) = parselet parseExpr infixTail infix
-                        loopWhile test left rest
+                        parselet parseExpr infixTail infix ||> loop
                     // ...
                     else
                         (left, leftTail)
             // ...
             let parselet: Parselet<'a> = getPrefixParselet token
-            parselet parseExpr tail token 
-            ||> loopWhile (fun infix -> precedence <= getPrecedence infix)
+            ///  while precedence <= peek next precedence
+            let loop = loopWhile <| fun infix -> precedence <= getPrecedence infix
+            (tail ,token ) ||> parselet parseExpr ||> loop
         | [] -> failwith "queue can't be empty" // avoid? (None, [])
 
     parseExpr
