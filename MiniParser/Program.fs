@@ -35,17 +35,17 @@ let rec visitMany (exprs: Expr<'a> list) =
         let visited = (visit expr)
         visited :: visitMany tail
 
-// Sql operator precedence
+// reversed Sql operator precedence
 let getPrecedence x =
         match x with
-        | "~" -> 1
+        | "~" -> 8
         | "*"
         | "%"
-        | "/" -> 2
+        | "/" -> 7
         | "+"
         | "-"
         | "^"
-        | "|" -> 3
+        | "|" -> 6
         | ">"
         | "=="
         | "<"
@@ -54,31 +54,40 @@ let getPrecedence x =
         | "!="
         | "<>"
         | "!<"
-        | "!>" -> 4
-        | "!" -> 5
-        | "&&" -> 6
-        | "||" -> 7 
-        | "=" -> 8
+        | "!>" -> 5
+        | "!" -> 4
+        | "&&" -> 3
+        | "||" -> 2 
+        | "=" -> 1
         | _ -> 0
 
 let getPrefix token =
         match token with 
-        | x when Regex("\w").IsMatch (x.ToString()) -> 
+        | x when Regex("\w+").IsMatch (x.ToString()) -> 
             NameExpression { token = token }            
         | x -> failwithf "'%A' Not a Prefix" x
+
+let peek queue =
+    match queue with
+    | [] -> None
+    | head:: _ -> Some(head)
+
+let peekTest test queue  =
+    match peek queue with
+    | None -> false
+    | some -> test (some.Value)
+
 
 let rec parseExpr queue precedence =
         match queue with
         | token :: tail ->                        
-            //...
+            //...while precedence <= peek next precedence
             let rec loop left leftTail =
                 match leftTail with
                 | [] -> (left, leftTail)
-                | infix :: infixTail ->
+                | infix :: infixTail ->    
                     let infixPrecedence = getPrecedence infix
-                    let isInfix = infixPrecedence > 0
-                    let canParsePostFix = isInfix && infixPrecedence >= precedence
-                    if canParsePostFix then
+                    if precedence <= infixPrecedence   then
                         let binaryParselet() =
                             let (right, rightTail) = parseExpr infixTail infixPrecedence
                             let expr =
@@ -95,15 +104,14 @@ let rec parseExpr queue precedence =
                         (left, leftTail)
             //
             let left = getPrefix token
-            let (expr, tail) = loop left tail
-            (expr, tail)
+            loop left tail
         | [] -> failwith "queue can't be empty" // avoid? (None, [])
 
 [<EntryPoint>]
 let main argv =
-    let input = ["a";"*";"b";"+";"c";"*";"d"]
+    let input = ["a";"*";"b";"+";"c"]
     let precedence = 0 
-    let (expr, _) = parseExpr input 0
+    let (expr, _) = parseExpr input precedence
     (input|> List.fold (+) "" , visit expr)
     ||> printf "%A\n%A\n"
-    0 // return an integer exit code
+    0 // fin
