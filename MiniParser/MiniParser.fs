@@ -12,61 +12,21 @@ type Expr<'a> =
 
 and EmptyExpression<'a> =
     { token: 'a }
-
-
-
-
-
-
-
-
 //
 and BynaryExpression<'a> =
     { token: 'a
       left: Expr<'a>
       right: Expr<'a> }
-
-
-
-
-
-
-
-
 //
 and NumberExpression<'a> =
     { token: 'a }
-
-
-
-
-
-
-
-
 //
 and NameExpression<'a> =
     { token: 'a }
-
-
-
-
-
-
-
-
 //
 and GroupExpression<'a> =
     { token: 'a
       right: Expr<'a> }
-
-
-
-
-
-
-
-
 //
 and CallExpression<'a> =
     { token: 'a
