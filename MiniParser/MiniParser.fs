@@ -50,6 +50,7 @@ let rec visit (expr: Expr<'a>) =
         let left = visit (e.left)
         let right = visit (e.right)
         sprintf "(%s %A %s)" left (e.token) right
+    |EmptyExpression _-> ""
 //
 let rec visitMany (exprs: Expr<'a> list) =
     match exprs with
