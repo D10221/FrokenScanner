@@ -1,7 +1,8 @@
 ﻿module Program
 
 open System
-open MiniParser
+open MiniParser.Parser
+open MiniParser.Visitor
 
 [<EntryPoint>]
 let main argv =
@@ -11,7 +12,7 @@ let main argv =
     // [ "("; "a"; "+";"b";")"; "*"; "c" ]
     // |> Array.toList    
     |> (fun input ->         
-        let (expr, _) = parseExpr input 0
+        let (expr, _) = ParseExpr input 0
         (input |> List.fold (+) "", visit expr)
         ||> printf "input: %A\n expr: %A\n")
     |> ignore
