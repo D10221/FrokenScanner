@@ -42,6 +42,10 @@ let rec visit (expr: Expr<'a>) =
     | NameExpression e -> sprintf "%A" (e.token)
     | NumberExpression e -> sprintf "%A" (e.token)
     | GroupExpression e -> sprintf "(%A)" (visit e.right)
+    | CallExpression e -> 
+        let left = visit (e.left)
+        let right = (e.right) |> List.map visit |> List.fold (+) ""
+        sprintf "(%s%A%s))" left (e.token) right
     | BinaryExpression e ->
         let left = visit (e.left)
         let right = visit (e.right)

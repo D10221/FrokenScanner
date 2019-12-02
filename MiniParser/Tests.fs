@@ -41,4 +41,4 @@ let CallTest() =
     input |> List.fold (+) "",
     visit expr
     |> clean
-    |> equals "a()"
+    |> equals "(a())"
