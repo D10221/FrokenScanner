@@ -9,23 +9,54 @@ type Expr<'a> =
     | BinaryExpression of BynaryExpression<'a>
     | CallExpression of CallExpression<'a>
     | EmptyExpression of EmptyExpression<'a>
+
 and EmptyExpression<'a> =
     { token: 'a }
+
+
+
+
+
+
 //
 and BynaryExpression<'a> =
     { token: 'a
       left: Expr<'a>
       right: Expr<'a> }
+
+
+
+
+
+
 //
 and NumberExpression<'a> =
     { token: 'a }
+
+
+
+
+
+
 //
 and NameExpression<'a> =
     { token: 'a }
+
+
+
+
+
+
 //
 and GroupExpression<'a> =
     { token: 'a
       right: Expr<'a> }
+
+
+
+
+
+
 //
 and CallExpression<'a> =
     { token: 'a
@@ -49,7 +80,7 @@ let rec visit (expr: Expr<'a>) =
         let right =
             (e.right)
             |> List.map visit
-            |> List.fold (fun a b -> a + "," + b) ""
+            |> List.fold (fun a b -> a + if b = "" then "" else "," + b) ""
         sprintf "(%s%A%s))" left (e.token) right
     | BinaryExpression e ->
         let left = visit (e.left)
@@ -111,24 +142,29 @@ let expect x =
     | some when some.Value = x -> x //do nothing
     | y -> failwithf "Expected %A but found %A" x y
 //
-let rec collect accept exclude queue =
+let expectNext f aList =
+    match aList with
+    | [] -> false
+    | h :: _ -> f (h)
+//
+let rec collect terminal separator queue =
     match queue with
-    | [] -> failwith "Can't be empty"
-    | h :: tail ->
-        if accept h then
-            let (x, rest) = collect accept exclude tail
-            (h :: x, rest)
-        elif exclude h then
-            let (x, rest) = collect accept exclude tail
-            (x, rest)
-        else
+    | [] -> ([], [])
+    | head :: tail ->
+        if (terminal head) then
             ([], queue)
+        else
+            if List.isEmpty tail && not (expectNext terminal tail) then failwithf "Expected %A" terminal
+            let (x, rest) =
+                tail
+                |> List.filter separator
+                |> collect terminal separator
+            (head :: x, rest)
 //
 let GroupParselet parseExpr token tail =
-    let accept t = t <> ")"
-    let (queue, tail) = collect accept (fun x -> false) tail
+    let (queue, tail) = collect (fun x -> x = ")") (fun x -> true) tail
     // Consume ending, replace tail
-    let (last, tail) = pop tail
+    let (last, rest) = pop tail
     last
     |> expect ")"
     |> ignore
@@ -136,12 +172,13 @@ let GroupParselet parseExpr token tail =
     assert (List.isEmpty unprocessed)
     (GroupExpression
         { token = token
-          right = expr }, tail)
+          right = expr }, rest)
 //
 let PrefixParselet token =
     match token with
     | x when Regex("^\w+$").IsMatch(x.ToString()) -> fun parseExp token tail -> (NameExpression { token = token }, tail)
-    | x when Regex("^\d+$").IsMatch(x.ToString()) -> fun parseExp token tail -> (NumberExpression { token = token }, tail)
+    | x when Regex("^\d+$").IsMatch(x.ToString()) ->
+        fun parseExp token tail -> (NumberExpression { token = token }, tail)
     | "(" -> GroupParselet
     | x -> failwithf "'%A' Not a Prefix" x
 //
@@ -162,8 +199,9 @@ let callParselet left parseExpr token tail =
               left = left
               right = [] }, List.tail tail)
     else
-        let (queue, tail) = collect (fun t -> t <> ")") (fun t -> t = ",") tail
-        assert (List.item 0 tail = ")")
+        let (queue, rest) = collect (fun t -> t = ")") (fun t -> t <> ",") tail
+        assert (List.item 0 rest = ")")
+
         // TODO: parse a,b,c
         let (right, unprocessed) = parseExpr queue 0
         assert (List.isEmpty unprocessed)
@@ -172,7 +210,7 @@ let callParselet left parseExpr token tail =
                 { token = token
                   left = left
                   right = [ right ] }
-        (expr, tail)
+        (expr, List.tail rest)
 
 ///  right asssociative, expression parselet
 let Parselet x =
