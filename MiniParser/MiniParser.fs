@@ -7,6 +7,10 @@ type Expr<'a> =
     | NumberExpression of NumberExpression<'a>
     | GroupExpression of GroupExpression<'a>
     | BinaryExpression of BynaryExpression<'a>
+    | CallExpression of CallExpression<'a>
+    | EmptyExpression of EmptyExpression<'a>
+and EmptyExpression<'a> =
+    { token: 'a }
 //
 and BynaryExpression<'a> =
     { token: 'a
@@ -22,6 +26,10 @@ and NameExpression<'a> =
 and GroupExpression<'a> =
     { token: 'a
       right: Expr<'a> }
+and CallExpression<'a> =
+    { token: 'a
+      left: Expr<'a>
+      right: Expr<'a> list }
 //
 type ParseExp<'a> = 'a list -> int -> (Expr<'a> * 'a list)
 //
@@ -48,6 +56,7 @@ let rec visitMany (exprs: Expr<'a> list) =
 // reversed Sql operator precedence
 let Precedence x =
     match x with
+    | "("
     | "~" -> 8
     | "*"
     | "%"
@@ -105,21 +114,19 @@ let rec collect accept exclude queue =
         else
             ([], queue)
 //
-let GroupParselet parseExp token tail =
+let GroupParselet parseExpr token tail =
     let accept t = t <> ")"
-    let exclude t = t = ","
-    let validate = expect ")" 
-    let (q, tail) = collect accept exclude tail
+    let (queue, tail) = collect accept (fun x -> false) tail
     // Consume ending, replace tail
     let (last, tail) = pop tail
-    validate last |> ignore
-    // validate ending                                  
-    let (e, notparsed) = parseExp q 0
-    if (List.length notparsed) > 0 then failwithf "Unexpected %A" notparsed
-    // not parsed should be .length = 0
+    last
+    |> expect ")"
+    |> ignore
+    let (expr, unprocessed) = parseExpr queue 0
+    assert (List.isEmpty unprocessed)
     (GroupExpression
-       { token = token
-         right = e }, tail)
+        { token = token
+          right = expr }, tail)
 //
 let PrefixParselet token =
     match token with
@@ -137,6 +144,26 @@ let binaryParselet left parseExpr token tail =
               left = left
               right = right }
     (expr, rightTail)
+
+let callParselet left parseExpr token tail =
+    if peekTest (fun x -> x = ")") tail then
+        (CallExpression
+            { token = token
+              left = left
+              right = [] }, List.tail tail)
+    else
+        let (queue, tail) = collect (fun t -> t <> ")") (fun t -> t = ",") tail
+        assert (List.item 0 tail = ")")        
+        // TODO: parse a,b,c 
+        let (right, unprocessed) = parseExpr queue 0
+        assert (List.isEmpty unprocessed)
+        let expr =
+            CallExpression
+                { token = token
+                  left = left
+                  right = [right] }
+        (expr, tail)
+
 ///  right asssociative, expression parselet
 let Parselet x =
     match x with
@@ -161,6 +188,7 @@ let Parselet x =
     | "&&"
     | "||"
     | "=" -> binaryParselet
+    | "(" -> callParselet
     | _ -> failwithf "%A is Not Implemented" x
 //
 let rec parseExpr queue precedence =
