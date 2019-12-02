@@ -18,11 +18,15 @@ and EmptyExpression<'a> =
 
 
 
+
+
 //
 and BynaryExpression<'a> =
     { token: 'a
       left: Expr<'a>
       right: Expr<'a> }
+
+
 
 
 
@@ -38,9 +42,13 @@ and NumberExpression<'a> =
 
 
 
+
+
 //
 and NameExpression<'a> =
     { token: 'a }
+
+
 
 
 
@@ -51,6 +59,8 @@ and NameExpression<'a> =
 and GroupExpression<'a> =
     { token: 'a
       right: Expr<'a> }
+
+
 
 
 
@@ -80,7 +90,9 @@ let rec visit (expr: Expr<'a>) =
         let right =
             (e.right)
             |> List.map visit
-            |> List.fold (fun a b -> a + if b = "" then "" else "," + b) ""
+            |> List.fold (fun a b ->
+                a + if b = "" then ""
+                    else "," + b) ""
         sprintf "(%s%A%s))" left (e.token) right
     | BinaryExpression e ->
         let left = visit (e.left)
@@ -126,11 +138,6 @@ let peek tail =
     | [] -> None
     | h :: _ -> Some(h)
 //
-let peekTest f tail =
-    match peek tail with
-    | None -> false
-    | some -> f (some.Value)
-//
 let pop tail =
     match tail with
     | [] -> (None, [])
@@ -147,27 +154,21 @@ let expectNext f aList =
     | [] -> false
     | h :: _ -> f (h)
 //
-let rec collect terminal separator queue =
+let rec collect isTerminal queue =
     match queue with
     | [] -> ([], [])
     | head :: tail ->
-        if (terminal head) then
-            ([], queue)
+        if (isTerminal head) then
+            ([], tail)
         else
-            if List.isEmpty tail && not (expectNext terminal tail) then failwithf "Expected %A" terminal
-            let (x, rest) =
-                tail
-                |> List.filter separator
-                |> collect terminal separator
+            if List.isEmpty tail && not (isTerminal head) then failwithf "Expected terminal but found %A" head
+            let (x, rest) = tail |> collect isTerminal
             (head :: x, rest)
 //
 let GroupParselet parseExpr token tail =
-    let (queue, tail) = collect (fun x -> x = ")") (fun x -> true) tail
-    // Consume ending, replace tail
-    let (last, rest) = pop tail
-    last
-    |> expect ")"
-    |> ignore
+    let terminal = (fun x -> x = ")")
+    //
+    let (queue, rest) = collect terminal tail
     let (expr, unprocessed) = parseExpr queue 0
     assert (List.isEmpty unprocessed)
     (GroupExpression
@@ -191,26 +192,48 @@ let binaryParselet left parseExpr token tail =
               left = left
               right = right }
     (expr, rightTail)
-
+//
+let rec splitBy isSeparator =
+    function
+    | [] -> []
+    | q ->
+        let index = q |> List.tryFindIndex isSeparator
+        match index with
+        | None -> [ q ]
+        | some ->
+            let (p, p1) = (q |> List.splitAt (some.Value + 1))
+            match p with
+            | [] -> [ q ]
+            | _ -> (p |> List.filter (isSeparator >> not)) :: splitBy isSeparator (p1)
+//
 let callParselet left parseExpr token tail =
-    if peekTest (fun x -> x = ")") tail then
+    let isTerminal t = t = ")"
+    let isSeparator t = t = ","
+    // ... Can be empty
+    if expectNext isTerminal tail then
         (CallExpression
             { token = token
               left = left
               right = [] }, List.tail tail)
-    else
-        let (queue, rest) = collect (fun t -> t = ")") (fun t -> t <> ",") tail
-        assert (List.item 0 rest = ")")
+    else  // collect args, every arg can be many tokens as 1 expresion
+        let (queue, rest) = collect isTerminal tail
+        // TODO: parse a,b,c as 1 then b then c
+        let toProcess = splitBy isSeparator queue
 
-        // TODO: parse a,b,c
-        let (right, unprocessed) = parseExpr queue 0
-        assert (List.isEmpty unprocessed)
+        let many =
+            toProcess
+            |> List.map (fun xxx ->
+                let (e, rrr) = parseExpr xxx 0
+                assert List.isEmpty rrr
+                e)
+
         let expr =
             CallExpression
                 { token = token
                   left = left
-                  right = [ right ] }
-        (expr, List.tail rest)
+                  right = many }
+
+        (expr, rest)
 
 ///  right asssociative, expression parselet
 let Parselet x =
