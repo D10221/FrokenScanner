@@ -26,6 +26,7 @@ and NameExpression<'a> =
 and GroupExpression<'a> =
     { token: 'a
       right: Expr<'a> }
+//
 and CallExpression<'a> =
     { token: 'a
       left: Expr<'a>
@@ -42,15 +43,19 @@ let rec visit (expr: Expr<'a>) =
     | NameExpression e -> sprintf "%A" (e.token)
     | NumberExpression e -> sprintf "%A" (e.token)
     | GroupExpression e -> sprintf "(%A)" (visit e.right)
-    | CallExpression e -> 
+    | CallExpression e ->
         let left = visit (e.left)
-        let right = (e.right) |> List.map visit |> List.fold (+) ""
+
+        let right =
+            (e.right)
+            |> List.map visit
+            |> List.fold (fun a b -> a + "," + b) ""
         sprintf "(%s%A%s))" left (e.token) right
     | BinaryExpression e ->
         let left = visit (e.left)
         let right = visit (e.right)
         sprintf "(%s %A %s)" left (e.token) right
-    |EmptyExpression _-> ""
+    | EmptyExpression _ -> ""
 //
 let rec visitMany (exprs: Expr<'a> list) =
     match exprs with
@@ -135,8 +140,8 @@ let GroupParselet parseExpr token tail =
 //
 let PrefixParselet token =
     match token with
-    | x when Regex("\w+").IsMatch(x.ToString()) -> fun parseExp token tail -> (NameExpression { token = token }, tail)
-    | x when Regex("\d+").IsMatch(x.ToString()) -> fun parseExp token tail -> (NumberExpression { token = token }, tail)
+    | x when Regex("^\w+$").IsMatch(x.ToString()) -> fun parseExp token tail -> (NameExpression { token = token }, tail)
+    | x when Regex("^\d+$").IsMatch(x.ToString()) -> fun parseExp token tail -> (NumberExpression { token = token }, tail)
     | "(" -> GroupParselet
     | x -> failwithf "'%A' Not a Prefix" x
 //
@@ -158,15 +163,15 @@ let callParselet left parseExpr token tail =
               right = [] }, List.tail tail)
     else
         let (queue, tail) = collect (fun t -> t <> ")") (fun t -> t = ",") tail
-        assert (List.item 0 tail = ")")        
-        // TODO: parse a,b,c 
+        assert (List.item 0 tail = ")")
+        // TODO: parse a,b,c
         let (right, unprocessed) = parseExpr queue 0
         assert (List.isEmpty unprocessed)
         let expr =
             CallExpression
                 { token = token
                   left = left
-                  right = [right] }
+                  right = [ right ] }
         (expr, tail)
 
 ///  right asssociative, expression parselet

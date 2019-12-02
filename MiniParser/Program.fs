@@ -5,7 +5,7 @@ open MiniParser
 
 [<EntryPoint>]
 let main argv =
-    argv.[0].Split(' ')
+    argv.[0].Split(' ') // simplest Tokenizer 
     |> Array.toList    
     |> (fun input ->         
         let (expr, _) = parseExpr input 0

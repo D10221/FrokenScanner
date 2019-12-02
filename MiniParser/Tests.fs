@@ -42,3 +42,19 @@ let CallTest() =
     visit expr
     |> clean
     |> equals "(a())"
+[<Fact>]
+let CallTest2() =
+    let input = [ "a"; "(";"a";")"]
+    let (expr, _) = parseExpr input 0
+    input |> List.fold (+) "",
+    visit expr
+    |> clean
+    |> equals "(a(a))"
+[<Fact>]
+let CallTest3() =
+    let input = [ "a"; "(";"a";",";"a";")"]
+    let (expr, _) = parseExpr input 0
+    input |> List.fold (+) "",
+    visit expr
+    |> clean
+    |> equals "(a(a,a))"
