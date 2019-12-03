@@ -1,8 +1,8 @@
 ﻿module Program
 
 open System
-open MiniParser.Parser
-open MiniParser.Visitor
+open MiniParser.Parsing.Parser
+open MiniParser.Parsing.Visitor
 
 [<EntryPoint>]
 let main argv =

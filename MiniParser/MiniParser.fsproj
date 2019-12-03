@@ -9,7 +9,8 @@
 
   <ItemGroup>
     <Compile Include="MiniParser.fs"/>
-    <Compile Include="Tests.fs"/>
+    <Compile Include="LexingTests.fs" />
+    <Compile Include="ParsingTests.fs"/>
     <Compile Include="Program.fs" />
   </ItemGroup>
 

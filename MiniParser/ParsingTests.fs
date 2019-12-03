@@ -1,7 +1,7 @@
 module Tests
 
-open MiniParser.Parser
-open MiniParser.Visitor
+open MiniParser.Parsing.Parser
+open MiniParser.Parsing.Visitor
 open Xunit
 open System.Text.RegularExpressions
 
