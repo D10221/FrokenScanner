@@ -85,11 +85,16 @@ module Lexing =
             | [] -> [] // done
             | head :: tail ->
                 match head with
+                | x when x = '.' && peek isDigit tail ->
+                    (x, tail)
+                    ||> takeWhile (fun c -> isDigit c || '.' = c )
+                    ||> append "number"
+                    ||> scan
                 | x when x |> isSymbol -> ((x.ToString(), "symbol"), tail) ||> scan
                 | x when x |> isDigit ->
                     (x, tail)
-                    ||> takeWhile isDigit
-                    ||> append "digit"
+                    ||> takeWhile (fun c -> isDigit c || '.' = c )
+                    ||> append "number"
                     ||> scan
                 | x when x |> isWord ->
                     (x, tail)
