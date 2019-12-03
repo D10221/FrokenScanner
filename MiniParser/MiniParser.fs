@@ -129,6 +129,7 @@ module Parsing =
             | BinaryExpression of BynaryExpression<'a>
             | CallExpression of CallExpression<'a>
             | EmptyExpression of EmptyExpression<'a>
+            | PrefixExpression of PrefixExpression<'a>
 
         and EmptyExpression<'a> =
             { token: 'a }
@@ -152,6 +153,11 @@ module Parsing =
             { token: 'a
               left: Expr<'a>
               right: Expr<'a> list }
+        //
+        and PrefixExpression<'a> = {
+            token: 'a
+            right: Expr<'a>
+        }              
         //
         type ParseExp<'a> = 'a list -> int -> (Expr<'a> * 'a list)
         //
@@ -184,6 +190,7 @@ module Parsing =
                 let left = visit (e.left)
                 let right = visit (e.right)
                 sprintf "(%s %A %s)" left (e.token) right
+            | PrefixExpression e -> sprintf "%A (%A)" e.token (visit e.right)
             | EmptyExpression _ -> ""
         //
         let rec visitMany (exprs: Expr<'a> list) =
@@ -279,6 +286,12 @@ module Parsing =
             (GroupExpression
                 { token = token
                   right = expr }, rest)
+        let NotParselet parseExpr token tail =
+            match tail with 
+            | [] -> failwith "Expected Expr<>"
+            | h :: t ->
+                let (right, rest ) = parseExpr tail 0
+                (PrefixExpression { token = token ; right = right}, rest)
         //
         let PrefixParselet token =
             match token with
@@ -286,6 +299,7 @@ module Parsing =
                 fun parseExp token tail -> (NameExpression { token = token }, tail)
             | x when Regex("^\d+$").IsMatch(x.ToString()) ->
                 fun parseExp token tail -> (NumberExpression { token = token }, tail)
+            | "!" -> NotParselet
             | "(" -> GroupParselet
             | x -> failwithf "'%A' Not a Prefix" x
         //
@@ -347,8 +361,7 @@ module Parsing =
             | "!="
             | "<>"
             | "!<"
-            | "!>"
-            | "!"
+            | "!>"            
             | "&&"
             | "||"
             | "=" -> BinaryParselet

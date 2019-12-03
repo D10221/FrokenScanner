@@ -4,6 +4,7 @@ open MiniParser.Parsing.Parser
 open MiniParser.Parsing.Visitor
 open Xunit
 open System.Text.RegularExpressions
+open MiniParser.Parsing.Types
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b
@@ -59,3 +60,15 @@ let CallTest3() =
     visit expr
     |> clean
     |> equals "(a(a,a))" //TODO the extra , in visitor
+[<Fact>]
+let PrefixExpressionTest () =
+    let (exp, _) = ParseExpr ["!"; "a"] 0
+    match exp with 
+    | PrefixExpression prefix -> 
+        equals prefix.token  "!"
+        match prefix.right with 
+            | NameExpression name -> 
+                equals name.token "a"
+            | _ -> failwith "Expected NameExpression"
+    | _ -> failwith "Expected PrefixExpression"
+    
