@@ -1,44 +1,55 @@
 module MiniParser
-module Types = 
-        type Expr<'a> =
-            | NameExpression of NameExpression<'a>
-            | NumberExpression of NumberExpression<'a>
-            | GroupExpression of GroupExpression<'a>
-            | BinaryExpression of BynaryExpression<'a>
-            | CallExpression of CallExpression<'a>
-            | EmptyExpression of EmptyExpression<'a>
 
-        and EmptyExpression<'a> =
-            { token: 'a }
-        //
-        and BynaryExpression<'a> =
-            { token: 'a
-              left: Expr<'a>
-              right: Expr<'a> }
-        //
-        and NumberExpression<'a> =
-            { token: 'a }
-        //
-        and NameExpression<'a> =
-            { token: 'a }
-        //
-        and GroupExpression<'a> =
-            { token: 'a
-              right: Expr<'a> }
-        //
-        and CallExpression<'a> =
-            { token: 'a
-              left: Expr<'a>
-              right: Expr<'a> list }
-        //
-        type ParseExp<'a> = 'a list -> int -> (Expr<'a> * 'a list)
-        //
-        type Parselet<'a> = ParseExp<'a> -> 'a -> 'a list -> (Expr<'a> * 'a list)
-        //
-        type InfixParselet<'a> = Expr<'a> -> Parselet<'a>
+module Types =
+    type Expr<'a> =
+        | NameExpression of NameExpression<'a>
+        | NumberExpression of NumberExpression<'a>
+        | GroupExpression of GroupExpression<'a>
+        | BinaryExpression of BynaryExpression<'a>
+        | CallExpression of CallExpression<'a>
+        | EmptyExpression of EmptyExpression<'a>
+
+    and EmptyExpression<'a> =
+        { token: 'a }
+
+    //
+    and BynaryExpression<'a> =
+        { token: 'a
+          left: Expr<'a>
+          right: Expr<'a> }
+
+    //
+    and NumberExpression<'a> =
+        { token: 'a }
+
+    //
+    and NameExpression<'a> =
+        { token: 'a }
+
+    //
+    and GroupExpression<'a> =
+        { token: 'a
+          right: Expr<'a> }
+
+    //
+    and CallExpression<'a> =
+        { token: 'a
+          left: Expr<'a>
+          right: Expr<'a> list }
+    //
+    type ParseExp<'a> = 'a list -> int -> (Expr<'a> * 'a list)
+    //
+    type Parselet<'a> = ParseExp<'a> -> 'a -> 'a list -> (Expr<'a> * 'a list)
+    //
+    type InfixParselet<'a> = Expr<'a> -> Parselet<'a>
 
 module Visitor =
     open Types
+
+    let private reduceOrDefault f def x =
+        match x with
+        | [] -> def
+        | _ -> x |> List.reduce f
     //
     let rec visit (expr: Expr<'a>) =
         match expr with
@@ -51,9 +62,7 @@ module Visitor =
             let right =
                 (e.right)
                 |> List.map visit
-                |> List.fold (fun a b ->
-                    a + if b = "" then ""
-                        else "," + b) ""
+                |> reduceOrDefault (fun a b -> a + "," + b) ""
             sprintf "(%s%A%s))" left (e.token) right
         | BinaryExpression e ->
             let left = visit (e.left)
@@ -68,9 +77,9 @@ module Visitor =
             let visited = (visit expr)
             visited :: visitMany tail
 /// <summary>
-/// 
-/// </summary>           
-module Precedence =         
+///
+/// </summary>
+module Precedence =
     // reversed Sql operator precedence
     let Precedence x =
         match x with
@@ -98,9 +107,9 @@ module Precedence =
         | "=" -> 1
         | _ -> 0
 /// <summary>
-/// 
-/// </summary>           
-module Utils = 
+///
+/// </summary>
+module Utils =
     //
     let peek tail =
         match tail with
@@ -147,14 +156,14 @@ module Utils =
                 | [] -> [ q ]
                 | _ -> (p |> List.filter (isSeparator >> not)) :: splitBy isSeparator (p1)
 /// <summary>
-/// 
-/// </summary>   
-module Parselets = 
+///
+/// </summary>
+module Parselets =
     open System.Text.RegularExpressions
     open Precedence
     open Types
-    open Utils    
-    //    
+    open Utils
+    //
     let GroupParselet parseExpr token tail =
         let terminal = (fun x -> x = ")")
         //
@@ -167,7 +176,8 @@ module Parselets =
     //
     let PrefixParselet token =
         match token with
-        | x when Regex("^\w+$").IsMatch(x.ToString()) -> fun parseExp token tail -> (NameExpression { token = token }, tail)
+        | x when Regex("^\w+$").IsMatch(x.ToString()) ->
+            fun parseExp token tail -> (NameExpression { token = token }, tail)
         | x when Regex("^\d+$").IsMatch(x.ToString()) ->
             fun parseExp token tail -> (NumberExpression { token = token }, tail)
         | "(" -> GroupParselet
@@ -194,7 +204,7 @@ module Parselets =
                   right = [] }, List.tail tail)
         else  // collect args, every arg can be many tokens as 1 expresion
             let (queue, rest) = collect isTerminal tail
-            // TODO: parse a,b,c as 1 then b then c
+            // parse a,b,c as 1 then b then c
             let toProcess = splitBy isSeparator queue
 
             let many =
@@ -239,9 +249,9 @@ module Parselets =
         | "(" -> CallParselet
         | _ -> failwithf "%A is Not Implemented" x
 /// <summary>
-/// 
-/// </summary>        
-module Parser =         
+///
+/// </summary>
+module Parser =
     open Parselets
     open Precedence
     //
