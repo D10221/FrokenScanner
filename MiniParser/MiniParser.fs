@@ -12,24 +12,29 @@ module Types =
     and EmptyExpression<'a> =
         { token: 'a }
 
+
     //
     and BynaryExpression<'a> =
         { token: 'a
           left: Expr<'a>
           right: Expr<'a> }
 
+
     //
     and NumberExpression<'a> =
         { token: 'a }
+
 
     //
     and NameExpression<'a> =
         { token: 'a }
 
+
     //
     and GroupExpression<'a> =
         { token: 'a
           right: Expr<'a> }
+
 
     //
     and CallExpression<'a> =
@@ -109,17 +114,7 @@ module Precedence =
 /// <summary>
 ///
 /// </summary>
-module Utils =
-    //
-    let peek tail =
-        match tail with
-        | [] -> None
-        | h :: _ -> Some(h)
-    //
-    let pop tail =
-        match tail with
-        | [] -> (None, [])
-        | h :: t -> (Some(h), t)
+module Q =   
     //
     let expect x =
         function
@@ -127,7 +122,7 @@ module Utils =
         | some when some.Value = x -> x //do nothing
         | y -> failwithf "Expected %A but found %A" x y
     //
-    let expectNext f aList =
+    let testNext f aList =
         match aList with
         | [] -> false
         | h :: _ -> f (h)
@@ -162,7 +157,7 @@ module Parselets =
     open System.Text.RegularExpressions
     open Precedence
     open Types
-    open Utils
+    open Q
     //
     let GroupParselet parseExpr token tail =
         let terminal = (fun x -> x = ")")
@@ -197,7 +192,7 @@ module Parselets =
         let isTerminal t = t = ")"
         let isSeparator t = t = ","
         // ... Can be empty
-        if expectNext isTerminal tail then
+        if testNext isTerminal tail then
             (CallExpression
                 { token = token
                   left = left
@@ -273,8 +268,7 @@ module Parser =
                     else (left, leftTail)
             //
             let parse = PrefixParselet token
-            let (left, tail) = parse ParseExpr token tail
-            (left, tail)
+            parse ParseExpr token tail
             ||> doWhile (fun token -> precedence <= Precedence token) (fun left infix infixTail ->
                     let parse = (Parselet infix) left
                     parse ParseExpr infix infixTail)
