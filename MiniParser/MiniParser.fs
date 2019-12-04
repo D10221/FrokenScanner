@@ -322,7 +322,7 @@ module Parsing =
                     { token = token
                       left = left
                       right = [] }, List.tail tail)
-            else  // collect args, every arg can be many tokens as 1 expresion
+            else  
                 let (queue, rest) = collect isTerminal tail
                 // parse a,b,c as 1 then b then c
                 let toProcess = splitBy isSeparator queue
