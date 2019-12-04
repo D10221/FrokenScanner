@@ -1,4 +1,4 @@
-module Tests
+module ParsingTests
 
 open MiniParser.Parsing.Parser
 open MiniParser.Parsing.Visitor

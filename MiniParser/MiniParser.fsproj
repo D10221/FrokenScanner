@@ -11,6 +11,7 @@
     <Compile Include="MiniParser.fs"/>
     <Compile Include="LexingTests.fs" />
     <Compile Include="ParsingTests.fs"/>
+    <Compile Include="MiniParserTests.fs"/>
     <Compile Include="Program.fs" />
   </ItemGroup>
 
