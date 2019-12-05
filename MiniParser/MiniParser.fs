@@ -1,6 +1,7 @@
 module MiniParser
 
 module Lexing =
+
     module Tests =
 
         open System.Text.RegularExpressions
@@ -281,7 +282,7 @@ module Parsing =
             let terminal = (fun x -> x = ")")
             //
             let (queue, rest) = collect terminal tail
-            let (expr, unprocessed) = parseExpr queue 0
+            let (expr, unprocessed) = parseExpr 0 queue
             assert (List.isEmpty unprocessed)
             (GroupExpression
                 { token = token
@@ -290,7 +291,7 @@ module Parsing =
             match tail with 
             | [] -> failwith "Expected Expr<>"
             | h :: t ->
-                let (right, rest ) = parseExpr tail 0
+                let (right, rest ) = parseExpr 0 tail
                 (PrefixExpression { token = token ; right = right}, rest)
         //
         let PrefixParselet token =
@@ -304,7 +305,7 @@ module Parsing =
             | x -> failwithf "'%A' Not a Prefix" x
         //
         let BinaryParselet left parseExpr token tail =
-            let (right, rightTail) = parseExpr tail (Precedence token)
+            let (right, rightTail) = parseExpr (Precedence token) tail 
 
             let expr =
                 BinaryExpression
@@ -330,7 +331,7 @@ module Parsing =
                 let many =
                     toProcess
                     |> List.map (fun xxx ->
-                        let (e, rrr) = parseExpr xxx 0
+                        let (e, rrr) = parseExpr 0 xxx
                         assert List.isEmpty rrr
                         e)
 
@@ -374,7 +375,7 @@ module Parsing =
         open Parselets
         open Precedence
         //
-        let rec ParseExpr queue precedence =
+        let rec ParseExpr precedence queue=
             match queue with
             | token :: tail ->
                 /// <summary>
@@ -397,3 +398,16 @@ module Parsing =
                         let parse = (Parselet infix) left
                         parse ParseExpr infix infixTail)
             | [] -> failwith "queue can't be empty" // avoid? (None, [])
+    
+open Parsing.Parser
+open Lexing.Scanner
+
+let private scan input =
+        [ for (token, tokenType) in Scan input do
+            if tokenType <> "space" && tokenType <> "newline" then yield token ]
+
+let private precedence = 0
+
+let parse input = scan input |> ParseExpr precedence
+
+let parseString (input: string) = input.ToCharArray() |> Array.toList |> scan  |> ParseExpr precedence

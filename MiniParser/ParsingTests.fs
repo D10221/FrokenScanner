@@ -15,7 +15,7 @@ let clean input = Regex.Replace(input, "\"", "")
 let Test1() =
     let input = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
     let precedence = 0
-    let (expr, _) = ParseExpr input precedence
+    let (expr, _) = ParseExpr precedence input
     input |> List.fold (+) "",
     visit expr
     |> clean
@@ -23,7 +23,7 @@ let Test1() =
 [<Fact>]
 let GroupTest() =
     let input = [ "("; "a"; "+";"b";")"; "*"; "c" ]
-    let (expr, _) = ParseExpr input 0
+    let (expr, _) = ParseExpr 0 input
     input |> List.fold (+) "",
     visit expr
     |> clean
@@ -31,7 +31,7 @@ let GroupTest() =
 [<Fact>]
 let GroupTest2() =
     let input = [ "("; "a"; ")"]
-    let (expr, _) = ParseExpr input 0
+    let (expr, _) = ParseExpr 0 input
     input |> List.fold (+) "",
     visit expr
     |> clean
@@ -39,7 +39,7 @@ let GroupTest2() =
 [<Fact>]
 let CallTest() =
     let input = [ "a"; "(";")"]
-    let (expr, _) = ParseExpr input 0
+    let (expr, _) = ParseExpr 0 input
     input |> List.fold (+) "",
     visit expr
     |> clean
@@ -47,7 +47,7 @@ let CallTest() =
 [<Fact>]
 let CallTest2() =
     let input = [ "a";"(";"a";")"]
-    let (expr, _) = ParseExpr input 0
+    let (expr, _) = ParseExpr 0 input
     input |> List.fold (+) "",
     visit expr
     |> clean
@@ -55,14 +55,14 @@ let CallTest2() =
 [<Fact>]
 let CallTest3() =
     let input = [ "a"; "(";"a";",";"a";")"]
-    let (expr, _) = ParseExpr input 0
+    let (expr, _) = ParseExpr 0 input
     input |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a(a,a))"
 [<Fact>]
 let PrefixExpressionTest () =
-    let (exp, _) = ParseExpr ["!"; "a"] 0
+    let (exp, _) = ParseExpr 0 ["!"; "a"]
     match exp with 
     | PrefixExpression prefix -> 
         equals prefix.token  "!"

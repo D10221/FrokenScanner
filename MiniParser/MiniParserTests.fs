@@ -1,28 +1,20 @@
 module MiniParserTests
 
-open MiniParser.Lexing.Scanner
+open MiniParser
 open MiniParser.Parsing.Visitor
 open Xunit
 open System.Text.RegularExpressions
 open MiniParser.Parsing.Types
-open MiniParser.Parsing.Parser
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b
 
 let clean input = Regex.Replace(input, "\"", "")
 
-
 [<Fact>]
 let Test1() =
-    let input = "a * b\n"
-
-    let scan input =
-        [ for (token, tokenType) in Scan input do
-            if tokenType <> "space" && tokenType <> "newline" then yield token ]
-
-    let precedence = 0
-    ParseExpr (scan (input.ToCharArray() |> Array.toList)) precedence
+    "a * b\n" 
+    |> parseString     
     |> fst
     |> (fun x ->
 
