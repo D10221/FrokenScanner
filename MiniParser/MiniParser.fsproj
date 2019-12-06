@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MiniParser.fs"/>
-    <Compile Include="LexingTests.fs" />
-    <Compile Include="ParsingTests.fs"/>
-    <Compile Include="MiniParserTests.fs"/>
+    <Compile Include="Lexing.fs"/>
+    <Compile Include="Parsing.fs"/>
+    <Compile Include="Parse.fs"/>
+    <Compile Include="Tests/Lexing.fs" />
+    <Compile Include="Tests/Parsing.fs"/>
+    <Compile Include="Tests/Parse.fs"/>
     <Compile Include="Program.fs" />
   </ItemGroup>
 

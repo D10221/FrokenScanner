@@ -1,4 +1,4 @@
-module LexingTests
+module MiniParser.Tests.Lexing
 
 open Xunit
 open MiniParser.Lexing.Scanner

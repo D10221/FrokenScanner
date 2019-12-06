@@ -1,20 +1,21 @@
-module MiniParserTests
+module MiniParser.Tests.MiniParser
 
-open MiniParser
-open MiniParser.Parsing.Visitor
 open Xunit
-open System.Text.RegularExpressions
+open MiniParser.Parsing.Visitor
 open MiniParser.Parsing.Types
+open MiniParser.Parse
+open System.Text.RegularExpressions
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b
 
 let clean input = Regex.Replace(input, "\"", "")
 
+
 [<Fact>]
 let Test1() =
-    "a * b\n" 
-    |> parseString     
+    "a * b\n"
+    |> ParseString
     |> fst
     |> (fun x ->
 
