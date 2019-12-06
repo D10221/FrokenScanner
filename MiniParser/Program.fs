@@ -2,5 +2,5 @@
 
 [<EntryPoint>]
 let main argv =
-    MiniParser.Tests.Lexing.Test5()
+    MiniParser.Tests.Lexing.LineCounts2()
     0 // fin

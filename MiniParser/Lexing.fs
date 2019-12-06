@@ -70,98 +70,71 @@ module Scanner =
         function
         | [] -> 0
         | prev ->
-            let (_, _, c) = List.head prev
+            let (_, _, c, _, _) = List.head prev
             c
     /// <summary>
-    /// re Count, adds  (absolute token index * line No. * relative to Line Col Index )
+    /// Scan char list and split on
+    /// Symbol,
+    /// Digit,
+    /// Word/Identifier,
+    /// Spaces (grouped)
+    /// New line
     /// </summary>
-    let ReCount length =
-        let rec reCount lineNo colNo =
-            function
-            | [] -> []
-            | (token, tokenType, tokenStart) :: tail ->
-                let isLine = tokenType = "newline" // TODO: no strings ?
-                //
+    let Scan chars =
+        let rec scan lineNo colNo input =
+            // recurse
+            let loop (token, tokenType) tail =
+                let isLine = tokenType = "newline"
+
                 let nextLineNo =
                     lineNo + (if isLine then 1
                               else 0)
 
-                let absolute = (length - tokenStart)
-
                 let nextColNo =
                     if isLine then 0
                     else colNo + (String.length token)
-                // absolute : col Index relative to Start
-                // lineNo: line No.
-                // colNo : col index relative to Line
-                (token, tokenType, absolute, lineNo, colNo) :: reCount nextLineNo nextColNo tail
-        reCount 0 0
 
-    /// <summary>
-    /// Scan char list and split on
-    /// Symbol,
-    /// Digit,
-    /// Word/Identifier,
-    /// Spaces (grouped)
-    /// New line
-    /// return (tokenValue, tokenType, tokenStart(column))
-    /// </summary>
-    let rec private sCan input =
-        // recurse
-        let scan (head: string * string) tail =
-            let prev = sCan tail
-            let start = getThird prev
-            let tokenStart = start + (fst head).Length
-            // (tokenValue, tokenType, tokenStart(column))
-            (fst head, snd head, tokenStart) :: prev
+                (token, tokenType, lineNo, colNo) :: scan nextLineNo nextColNo tail
 
-        let append tokenType (c: char list) tail =
-            let value = (c |> concat)
-            ((value, tokenType), tail)
+            let append tokenType (c: char list) tail =
+                let value = (c |> concat)
+                ((value, tokenType), tail)
 
-        match input with
-        | [] -> [] // done
-        | head :: tail ->
-            match head with
-            | x when x = '.' && peek isDigit tail ->
-                (x, tail)
-                ||> takeWhile (fun c -> isDigit c || '.' = c)
-                ||> append "number"
-                ||> scan
-            | x when x |> isSymbol -> ((x.ToString(), "symbol"), tail) ||> scan
-            | x when x |> isDigit ->
-                (x, tail)
-                ||> takeWhile (fun c -> isDigit c || '.' = c)
-                ||> append "number"
-                ||> scan
-            | x when x |> isWord ->
-                (x, tail)
-                ||> takeWhile isWordOrDigit
-                ||> append "word"
-                ||> scan
-            | x when x |> isSpace ->
-                (x, tail)
-                ||> takeWhile isSpace
-                ||> append "space"
-                ||> scan
-            // ... newLine
-            | '\n' as x -> ((x.ToString(), "newline"), tail) ||> scan
-            // No match if next is not '\n'
-            | '\r' as x when tail |> peek (fun c -> c = '\n') ->
-                (x, tail)
-                ||> takeNextIfMatch '\n'
-                ||> append "newline"
-                ||> scan
-            // let it go thru until we decide what to do with it
-            | '\r' as x -> ((x.ToString(), "newline"), tail) ||> scan
-            // ...
-            | x -> sprintf "'%A' is Not Implemented" x |> failwith
-    /// <summary>
-    /// Scan char list and split on
-    /// Symbol,
-    /// Digit,
-    /// Word/Identifier,
-    /// Spaces (grouped)
-    /// New line
-    /// </summary>
-    let Scan xxx = sCan xxx |> ReCount(List.length xxx)
+            match input with
+            | [] -> [] // done
+            | head :: tail ->
+                match head with
+                | x when x = '.' && peek isDigit tail ->
+                    (x, tail)
+                    ||> takeWhile (fun c -> isDigit c || '.' = c)
+                    ||> append "number"
+                    ||> loop
+                | x when x |> isSymbol -> ((x.ToString(), "symbol"), tail) ||> loop
+                | x when x |> isDigit ->
+                    (x, tail)
+                    ||> takeWhile (fun c -> isDigit c || '.' = c)
+                    ||> append "number"
+                    ||> loop
+                | x when x |> isWord ->
+                    (x, tail)
+                    ||> takeWhile isWordOrDigit
+                    ||> append "word"
+                    ||> loop
+                | x when x |> isSpace ->
+                    (x, tail)
+                    ||> takeWhile isSpace
+                    ||> append "space"
+                    ||> loop
+                // ... newLine
+                | '\n' as x -> ((x.ToString(), "newline"), tail) ||> loop
+                // No match if next is not '\n'
+                | '\r' as x when tail |> peek (fun c -> c = '\n') ->
+                    (x, tail)
+                    ||> takeNextIfMatch '\n'
+                    ||> append "newline"
+                    ||> loop
+                // let it go thru until we decide what to do with it
+                | '\r' as x -> ((x.ToString(), "newline"), tail) ||> loop
+                // ...
+                | x -> sprintf "'%A' is Not Implemented" x |> failwith
+        scan 0 0 chars

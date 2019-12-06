@@ -4,7 +4,7 @@ open MiniParser.Parsing.Parser
 open MiniParser.Lexing.Scanner
 
 let private scan input =
-        [ for (token, tokenType, _startsAt, _lineNo, _colNo) in Scan input do
+        [ for (token, tokenType, _lineNo, _colNo) in Scan input do
             if tokenType <> "space" && tokenType <> "newline" then yield token ]
 
 let private precedence = 0
