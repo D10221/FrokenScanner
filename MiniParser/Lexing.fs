@@ -73,20 +73,29 @@ module Scanner =
             let (_, _, c) = List.head prev
             c
     /// <summary>
-    /// re Count
+    /// re Count, adds  (absolute token index * line No. * relative to Line Col Index )
     /// </summary>
     let ReCount length =
-        let rec reCount lineNo =
+        let rec reCount lineNo colNo =
             function
             | [] -> []
             | (token, tokenType, tokenStart) :: tail ->
-                let isLine = tokenType = "newline"
-
+                let isLine = tokenType = "newline" // TODO: no strings ?
+                //
                 let nextLineNo =
                     lineNo + (if isLine then 1
                               else 0)
-                (token, tokenType, length - tokenStart, lineNo) :: reCount nextLineNo tail
-        reCount 0
+
+                let absolute = (length - tokenStart)
+
+                let nextColNo =
+                    if isLine then 0
+                    else colNo + (String.length token)
+                // absolute : col Index relative to Start
+                // lineNo: line No.
+                // colNo : col index relative to Line
+                (token, tokenType, absolute, lineNo, colNo) :: reCount nextLineNo nextColNo tail
+        reCount 0 0
 
     /// <summary>
     /// Scan char list and split on
