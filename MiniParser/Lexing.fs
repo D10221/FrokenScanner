@@ -65,19 +65,29 @@ module Scanner =
             match next with
             | y when isMatch y -> true
             | _ -> false
-    // ...            
-    let private getThird =  function 
-            | []-> 0
-            | prev -> 
-                let (_,_,c) = List.head prev
-                c            
+    // ...
+    let private getThird =
+        function
+        | [] -> 0
+        | prev ->
+            let (_, _, c) = List.head prev
+            c
     /// <summary>
-    /// reverse Count 
+    /// re Count
     /// </summary>
-    let reverseCount xxx =
-        fun x ->
-            let (a, b, i) = x
-            (a, b, List.length xxx - i)
+    let ReCount length =
+        let rec reCount lineNo =
+            function
+            | [] -> []
+            | (token, tokenType, tokenStart) :: tail ->
+                let isLine = tokenType = "newline"
+
+                let nextLineNo =
+                    lineNo + (if isLine then 1
+                              else 0)
+                (token, tokenType, length - tokenStart, lineNo) :: reCount nextLineNo tail
+        reCount 0
+
     /// <summary>
     /// Scan char list and split on
     /// Symbol,
@@ -87,13 +97,13 @@ module Scanner =
     /// New line
     /// return (tokenValue, tokenType, tokenStart(column))
     /// </summary>
-    let rec private sCan input =        
+    let rec private sCan input =
         // recurse
         let scan (head: string * string) tail =
-            let prev = sCan tail           
+            let prev = sCan tail
             let start = getThird prev
             let tokenStart = start + (fst head).Length
-            // (tokenValue, tokenType, tokenStart(column))            
+            // (tokenValue, tokenType, tokenStart(column))
             (fst head, snd head, tokenStart) :: prev
 
         let append tokenType (c: char list) tail =
@@ -137,7 +147,7 @@ module Scanner =
             | '\r' as x -> ((x.ToString(), "newline"), tail) ||> scan
             // ...
             | x -> sprintf "'%A' is Not Implemented" x |> failwith
-     /// <summary>
+    /// <summary>
     /// Scan char list and split on
     /// Symbol,
     /// Digit,
@@ -145,5 +155,4 @@ module Scanner =
     /// Spaces (grouped)
     /// New line
     /// </summary>
-    let Scan xxx = 
-        sCan xxx |> List.map (reverseCount xxx)
+    let Scan xxx = sCan xxx |> ReCount(List.length xxx)
