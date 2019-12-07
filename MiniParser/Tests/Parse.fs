@@ -1,7 +1,7 @@
 module MiniParser.Tests.MiniParser
 
 open Xunit
-open MiniParser.Parsing.Visitor
+open MiniParser.Visiting
 open MiniParser.Parsing.Types
 open MiniParser.Parse
 open MiniParser.Parsing.Token

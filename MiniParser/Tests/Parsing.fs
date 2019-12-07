@@ -3,9 +3,9 @@ module MiniParser.Tests.Parsing
 open Xunit
 open System.Text.RegularExpressions
 open MiniParser.Parsing.Parser
-open MiniParser.Parsing.Visitor
 open MiniParser.Parsing.Types
 open MiniParser.Parsing.Token
+open MiniParser.Visiting
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b
@@ -14,16 +14,13 @@ let clean input = Regex.Replace(input, "\"", "")
 
 let toToken x = (x, "", 0, 0)
 
-
-
-
 [<Fact>]
 let Test1() =
     let chars = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
     let tokens = chars |> List.map toToken
     let precedence = 0
     let (expr, _) = ParseExpr precedence tokens
-    chars |> List.fold (+) "",
+    tokens |> List.map tokenValue |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(((a * b) + (c * d)) = ((e / f) - (g / h)))"
@@ -33,7 +30,7 @@ let GroupTest() =
     let chars = [ "("; "a"; "+"; "b"; ")"; "*"; "c" ]
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
-    chars |> List.fold (+) "",
+    tokens |> List.map tokenValue |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(((a + b)) * c)"
@@ -43,7 +40,7 @@ let GroupTest2() =
     let chars = [ "("; "a"; ")" ]
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
-    chars |> List.fold (+) "",
+    tokens |> List.map tokenValue |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a)"
@@ -53,7 +50,7 @@ let CallTest() =
     let chars = [ "a"; "("; ")" ]
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
-    chars |> List.fold (+) "",
+    tokens |> List.map tokenValue |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a())"
