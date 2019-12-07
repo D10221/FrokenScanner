@@ -43,19 +43,21 @@ module MiniParser.Parsing
         type Parselet<'a> = ParseExp<'a> -> 'a -> 'a list -> (Expr<'a> * 'a list)
         //
         type InfixParselet<'a> = Expr<'a> -> Parselet<'a>
-
+    module Token =
+          //
+        let tokenValue = function |(tokenValue, tokenType, lienNo, colNo)-> tokenValue | _ -> failwith "%A Not a Token!"
     module Visitor =
         open Types
-
+        open Token 
         let private reduceOrDefault f def x =
             match x with
             | [] -> def
             | _ -> x |> List.reduce f
         //
-        let rec visit (expr: Expr<'a>) =
+        let rec visit expr =
             match expr with
-            | NameExpression e -> sprintf "%A" (e.token)
-            | NumberExpression e -> sprintf "%A" (e.token)
+            | NameExpression e -> sprintf "%A" (tokenValue e.token)
+            | NumberExpression e -> sprintf "%A" (tokenValue  e.token)
             | GroupExpression e -> sprintf "(%A)" (visit e.right)
             | CallExpression e ->
                 let left = visit (e.left)
@@ -64,15 +66,15 @@ module MiniParser.Parsing
                     (e.right)
                     |> List.map visit
                     |> reduceOrDefault (fun a b -> a + "," + b) ""
-                sprintf "(%s%A%s))" left (e.token) right
+                sprintf "(%s%A%s))" left (tokenValue  e.token) right
             | BinaryExpression e ->
                 let left = visit (e.left)
                 let right = visit (e.right)
-                sprintf "(%s %A %s)" left (e.token) right
-            | PrefixExpression e -> sprintf "%A (%A)" e.token (visit e.right)
+                sprintf "(%s %A %s)" left (tokenValue  e.token) right
+            | PrefixExpression e -> sprintf "%A (%A)" (tokenValue  e.token) (visit e.right)
             | EmptyExpression _ -> ""
         //
-        let rec visitMany (exprs: Expr<'a> list) =
+        let rec visitMany exprs =
             match exprs with
             | [] -> []
             | (expr :: tail) ->
@@ -107,7 +109,7 @@ module MiniParser.Parsing
             | "&&" -> 3
             | "||" -> 2
             | "=" -> 1
-            | _ -> 0
+            | _ -> 0   
     /// <summary>
     ///
     /// </summary>
@@ -119,7 +121,7 @@ module MiniParser.Parsing
             | some when some.Value = x -> x //do nothing
             | y -> failwithf "Expected %A but found %A" x y
         //
-        let testNext f aList =
+        let peek f aList =
             match aList with
             | [] -> false
             | h :: _ -> f (h)
@@ -133,7 +135,7 @@ module MiniParser.Parsing
                 else
                     if List.isEmpty tail && not (isTerminal head) then failwithf "Expected terminal but found %A" head
                     let (x, rest) = tail |> collect isTerminal
-                    (head :: x, rest)
+                    (head :: x, rest)      
         //
         let rec splitBy isSeparator =
             function
@@ -155,9 +157,10 @@ module MiniParser.Parsing
         open Precedence
         open Types
         open Q
+        open Token
         //
         let GroupParselet parseExpr token tail =
-            let terminal = (fun x -> x = ")")
+            let terminal = (fun x -> (tokenValue x) = ")")
             //
             let (queue, rest) = collect terminal tail
             let (expr, unprocessed) = parseExpr 0 queue
@@ -168,12 +171,12 @@ module MiniParser.Parsing
         let NotParselet parseExpr token tail =
             match tail with 
             | [] -> failwith "Expected Expr<>"
-            | h :: t ->
+            | _ ->
                 let (right, rest ) = parseExpr 0 tail
                 (PrefixExpression { token = token ; right = right}, rest)
         //
         let PrefixParselet token =
-            match token with
+            match tokenValue token with
             | x when Regex("^\w+$").IsMatch(x.ToString()) ->
                 fun parseExp token tail -> (NameExpression { token = token }, tail)
             | x when Regex("^\d+$").IsMatch(x.ToString()) ->
@@ -183,7 +186,7 @@ module MiniParser.Parsing
             | x -> failwithf "'%A' Not a Prefix" x
         //
         let BinaryParselet left parseExpr token tail =
-            let (right, rightTail) = parseExpr (Precedence token) tail 
+            let (right, rightTail) = parseExpr (Precedence <| tokenValue token) tail 
 
             let expr =
                 BinaryExpression
@@ -193,10 +196,10 @@ module MiniParser.Parsing
             (expr, rightTail)
         //
         let CallParselet left parseExpr token tail =
-            let isTerminal t = t = ")"
-            let isSeparator t = t = ","
+            let isTerminal t = (tokenValue t) = ")"
+            let isSeparator t = (tokenValue t) = ","
             // ... Can be empty
-            if testNext isTerminal tail then
+            if peek isTerminal tail then
                 (CallExpression
                     { token = token
                       left = left
@@ -223,7 +226,7 @@ module MiniParser.Parsing
 
         ///  right asssociative, expression parselet
         let Parselet x =
-            match x with
+            match tokenValue x with
             | "~" -> failwithf "%A not Implemented"
             | "*"
             | "%"
@@ -252,9 +255,10 @@ module MiniParser.Parsing
     module Parser =
         open Parselets
         open Precedence
+        open Token
         //
-        let rec ParseExpr precedence queue=
-            match queue with
+        let rec ParseExpr precedence tokens=
+            match tokens with
             | token :: tail ->
                 /// <summary>
                 ///  while precedence <= peek next precedence
@@ -272,7 +276,7 @@ module MiniParser.Parsing
                 //
                 let parse = PrefixParselet token
                 parse ParseExpr token tail
-                ||> doWhile (fun token -> precedence <= Precedence token) (fun left infix infixTail ->
+                ||> doWhile (fun token -> precedence <= (Precedence <| tokenValue token)) (fun left infix infixTail ->
                         let parse = (Parselet infix) left
                         parse ParseExpr infix infixTail)
             | [] -> failwith "queue can't be empty" // avoid? (None, [])

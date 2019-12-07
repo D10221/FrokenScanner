@@ -1,74 +1,95 @@
 module MiniParser.Tests.Parsing
 
-open MiniParser.Parsing.Parser
-open MiniParser.Parsing.Visitor
 open Xunit
 open System.Text.RegularExpressions
+open MiniParser.Parsing.Parser
+open MiniParser.Parsing.Visitor
 open MiniParser.Parsing.Types
+open MiniParser.Parsing.Token
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b
 
 let clean input = Regex.Replace(input, "\"", "")
 
+let toToken x = (x, "", 0, 0)
+
+
+
+
 [<Fact>]
 let Test1() =
-    let input = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
+    let chars = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
+    let tokens = chars |> List.map toToken
     let precedence = 0
-    let (expr, _) = ParseExpr precedence input
-    input |> List.fold (+) "",
+    let (expr, _) = ParseExpr precedence tokens
+    chars |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(((a * b) + (c * d)) = ((e / f) - (g / h)))"
+
 [<Fact>]
 let GroupTest() =
-    let input = [ "("; "a"; "+";"b";")"; "*"; "c" ]
-    let (expr, _) = ParseExpr 0 input
-    input |> List.fold (+) "",
+    let chars = [ "("; "a"; "+"; "b"; ")"; "*"; "c" ]
+    let tokens = chars |> List.map toToken
+    let (expr, _) = ParseExpr 0 tokens
+    chars |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(((a + b)) * c)"
+
 [<Fact>]
 let GroupTest2() =
-    let input = [ "("; "a"; ")"]
-    let (expr, _) = ParseExpr 0 input
-    input |> List.fold (+) "",
+    let chars = [ "("; "a"; ")" ]
+    let tokens = chars |> List.map toToken
+    let (expr, _) = ParseExpr 0 tokens
+    chars |> List.fold (+) "",
     visit expr
     |> clean
-    |> equals "(a)"    
+    |> equals "(a)"
+
 [<Fact>]
 let CallTest() =
-    let input = [ "a"; "(";")"]
-    let (expr, _) = ParseExpr 0 input
-    input |> List.fold (+) "",
+    let chars = [ "a"; "("; ")" ]
+    let tokens = chars |> List.map toToken
+    let (expr, _) = ParseExpr 0 tokens
+    chars |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a())"
+
 [<Fact>]
 let CallTest2() =
-    let input = [ "a";"(";"a";")"]
-    let (expr, _) = ParseExpr 0 input
-    input |> List.fold (+) "",
+    let chars = [ "a"; "("; "a"; ")" ]
+    let tokens = chars |> List.map toToken
+    let (expr, _) = ParseExpr 0 tokens
+    tokens
+    |> List.map tokenValue
+    |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a(a))"
+
 [<Fact>]
 let CallTest3() =
-    let input = [ "a"; "(";"a";",";"a";")"]
-    let (expr, _) = ParseExpr 0 input
-    input |> List.fold (+) "",
+    let chars = [ "a"; "("; "a"; ","; "a"; ")" ]
+    let tokens = chars |> List.map toToken
+    let (expr, _) = ParseExpr 0 tokens
+    tokens
+    |> List.map tokenValue
+    |> List.fold (+) "",
     visit expr
     |> clean
     |> equals "(a(a,a))"
+
 [<Fact>]
-let PrefixExpressionTest () =
-    let (exp, _) = ParseExpr 0 ["!"; "a"]
-    match exp with 
-    | PrefixExpression prefix -> 
-        equals prefix.token  "!"
-        match prefix.right with 
-            | NameExpression name -> 
-                equals name.token "a"
-            | _ -> failwith "Expected NameExpression"
+let PrefixExpressionTest() =
+    let (exp, _) = ParseExpr 0 ([ "!"; "a" ] |> List.map toToken)
+    match exp with
+    | PrefixExpression prefix ->
+        tokenValue prefix.token |> equals "!"
+        match prefix.right with
+        | NameExpression name -> tokenValue name.token |> equals "a"
+        | _ -> failwith "Expected NameExpression"
     | _ -> failwith "Expected PrefixExpression"
-    
+ 

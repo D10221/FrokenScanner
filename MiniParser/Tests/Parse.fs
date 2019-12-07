@@ -4,6 +4,7 @@ open Xunit
 open MiniParser.Parsing.Visitor
 open MiniParser.Parsing.Types
 open MiniParser.Parse
+open MiniParser.Parsing.Token
 open System.Text.RegularExpressions
 
 let equals a b =
@@ -25,14 +26,14 @@ let Test1() =
 
     match x with
     | BinaryExpression e ->
-        equals e.token "*"
+        tokenValue e.token |> equals  "*"
 
         match e.left with
-        | NameExpression name -> equals name.token "a"
+        | NameExpression name -> tokenValue name.token |> equals "a"
         | _ -> failwith "expected a"
 
         match e.right with
-        | NameExpression name -> equals name.token "b"
+        | NameExpression name -> tokenValue name.token |> equals "b"
         | _ -> failwith "expected b"
 
     | _ -> failwith "Expected BinaryExpression")
