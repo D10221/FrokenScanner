@@ -13,30 +13,36 @@ module Types =
     and EmptyExpression<'a> =
         { token: 'a }
 
+
     //
     and BynaryExpression<'a> =
         { token: 'a
           left: Expr<'a>
           right: Expr<'a> }
 
+
     //
     and NumberExpression<'a> =
         { token: 'a }
 
+
     //
     and NameExpression<'a> =
         { token: 'a }
+
 
     //
     and GroupExpression<'a> =
         { token: 'a
           right: Expr<'a> }
 
+
     //
     and CallExpression<'a> =
         { token: 'a
           left: Expr<'a>
           right: Expr<'a> list }
+
 
     //
     and PrefixExpression<'a> =
@@ -51,8 +57,8 @@ module Types =
 
 module Token =
     //
-    let tokenValue (tokenValue, _, _, _) = tokenValue        
-    
+    let tokenValue (tokenValue, _, _, _) = tokenValue
+
 module Precedence =
     // reversed Sql operator precedence
     let Precedence x =
@@ -248,8 +254,16 @@ module Parser =
                     else (left, leftTail)
             //
             let parse = PrefixParselet token
-            parse ParseExpr token tail
-            ||> doWhile (fun token -> precedence <= (Precedence <| tokenValue token)) (fun left infix infixTail ->
-                    let parse = (Parselet infix) left
-                    parse ParseExpr infix infixTail)
+
+            let precedenceLower token =
+                token
+                |> tokenValue
+                |> Precedence
+                >= precedence
+
+            let parseInfix left infix infixTail =
+                let parse = (Parselet infix) left
+                parse ParseExpr infix infixTail
+
+            parse ParseExpr token tail ||> doWhile precedenceLower parseInfix
         | [] -> failwith "queue can't be empty" // avoid? (None, [])
