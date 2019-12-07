@@ -21,7 +21,7 @@ let Test1() =
     let precedence = 0
     let (expr, _) = ParseExpr precedence tokens
     tokens |> List.map tokenValue |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(((a * b) + (c * d)) = ((e / f) - (g / h)))"
 
@@ -31,7 +31,7 @@ let GroupTest() =
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
     tokens |> List.map tokenValue |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(((a + b)) * c)"
 
@@ -41,7 +41,7 @@ let GroupTest2() =
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
     tokens |> List.map tokenValue |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(a)"
 
@@ -51,7 +51,7 @@ let CallTest() =
     let tokens = chars |> List.map toToken
     let (expr, _) = ParseExpr 0 tokens
     tokens |> List.map tokenValue |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(a())"
 
@@ -63,7 +63,7 @@ let CallTest2() =
     tokens
     |> List.map tokenValue
     |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(a(a))"
 
@@ -75,7 +75,7 @@ let CallTest3() =
     tokens
     |> List.map tokenValue
     |> List.fold (+) "",
-    visit expr
+    Visit expr
     |> clean
     |> equals "(a(a,a))"
 

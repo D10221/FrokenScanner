@@ -8,29 +8,29 @@ let private reduceOrDefault f def x =
     | [] -> def
     | _ -> x |> List.reduce f
 //
-let rec visit expr =
+let rec Visit expr =
     match expr with
     | NameExpression e -> sprintf "%A" (tokenValue e.token)
     | NumberExpression e -> sprintf "%A" (tokenValue e.token)
-    | GroupExpression e -> sprintf "(%A)" (visit e.right)
+    | GroupExpression e -> sprintf "(%A)" (Visit e.right)
     | CallExpression e ->
-        let left = visit (e.left)
+        let left = Visit (e.left)
 
         let right =
             (e.right)
-            |> List.map visit
+            |> List.map Visit
             |> reduceOrDefault (fun a b -> a + "," + b) ""
         sprintf "(%s%A%s))" left (tokenValue e.token) right
     | BinaryExpression e ->
-        let left = visit (e.left)
-        let right = visit (e.right)
+        let left = Visit (e.left)
+        let right = Visit (e.right)
         sprintf "(%s %A %s)" left (tokenValue e.token) right
-    | PrefixExpression e -> sprintf "%A (%A)" (tokenValue e.token) (visit e.right)
+    | PrefixExpression e -> sprintf "%A (%A)" (tokenValue e.token) (Visit e.right)
     | EmptyExpression _ -> ""
 //
-let rec visitMany exprs =
+let rec VisitMany exprs =
     match exprs with
     | [] -> []
     | (expr :: tail) ->
-        let visited = (visit expr)
-        visited :: visitMany tail
+        let visited = (Visit expr)
+        visited :: VisitMany tail

@@ -20,7 +20,7 @@ let Test1() =
     |> fst
     |> (fun x ->
 
-    (visit x)
+    (Visit x)
     |> clean
     |> equals "(a * b)"
 
