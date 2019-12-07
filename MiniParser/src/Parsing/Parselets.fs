@@ -20,7 +20,7 @@ let GroupParselet parseExpr token tail =
         { token = token
           right = expr }, rest)
 
-let NotParselet parseExpr token tail =
+let PrefixOperatorParselet parseExpr token tail =
     match tail with
     | [] -> failwith "Expected Expr<>"
     | _ ->
@@ -35,7 +35,7 @@ let PrefixParselet token =
         fun parseExp token tail -> (NameExpression { token = token }, tail)
     | x when Regex("^\d+$").IsMatch(x.ToString()) ->
         fun parseExp token tail -> (NumberExpression { token = token }, tail)
-    | "!" -> NotParselet
+    | "!" -> PrefixOperatorParselet
     | "(" -> GroupParselet
     | x -> failwithf "'%A' Not a Prefix" x
 //

@@ -4,7 +4,7 @@ module Tests =
 
     open System.Text.RegularExpressions
 
-    let symbols = "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
+    let operators = "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
 
     let private any list x =
         list
@@ -13,8 +13,8 @@ module Tests =
 
     let isSpace = [ ' '; '\t' ] |> any
 
-    let isSymbol =
-        symbols.ToCharArray()
+    let isOperator =
+        operators.ToCharArray()
         |> Array.toList
         |> any
 
@@ -109,7 +109,7 @@ module Scanner =
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
                     ||> append "number"
                     ||> loop
-                | x when x |> isSymbol -> ((x.ToString(), "symbol"), tail) ||> loop
+                | x when x |> isOperator -> ((x.ToString(), "symbol"), tail) ||> loop
                 | x when x |> isDigit ->
                     (x, tail)
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
@@ -136,5 +136,5 @@ module Scanner =
                 // let it go thru until we decide what to do with it
                 | '\r' as x -> ((x.ToString(), "newline"), tail) ||> loop
                 // ...
-                | x -> sprintf "'%A' is Not Implemented" x |> failwith
+                | x -> sprintf "Operator '%A' is Not Implemented" x |> failwith
         scan 0 0 chars

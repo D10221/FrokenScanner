@@ -18,8 +18,8 @@
     <Compile Include="src/Visiting.fs"/>
     <Compile Include="src/Parse.fs"/>
     <Compile Include="Tests/Lexing.fs" />
-    <Compile Include="Tests/Parsing.fs"/>
     <Compile Include="Tests/Parse.fs"/>
+    <Compile Include="Tests/Parsing.fs"/>
     <Compile Include="src/Program.fs" />
   </ItemGroup>
 
