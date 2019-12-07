@@ -2,9 +2,9 @@ module MiniParser.Tests.Parsing
 
 open Xunit
 open System.Text.RegularExpressions
+open MiniParser.Parsing.Expressions
 open MiniParser.Parsing.Parser
 open MiniParser.Parsing.Types
-open MiniParser.Parsing.Token
 open MiniParser.Visiting
 
 let equals a b =

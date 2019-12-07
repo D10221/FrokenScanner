@@ -1,10 +1,10 @@
 module MiniParser.Tests.MiniParser
 
 open Xunit
+open MiniParser.Parsing.Expressions
 open MiniParser.Visiting
-open MiniParser.Parsing.Types
 open MiniParser.Parse
-open MiniParser.Parsing.Token
+open MiniParser.Parsing.Types
 open System.Text.RegularExpressions
 
 let equals a b =

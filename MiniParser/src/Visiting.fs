@@ -1,7 +1,7 @@
 module MiniParser.Visiting 
 
+open Parsing.Expressions
 open Parsing.Types
-open Parsing.Token
 
 let private reduceOrDefault f def x =
     match x with
