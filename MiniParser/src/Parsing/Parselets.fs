@@ -1,14 +1,13 @@
 /// <summary>
 ///
 /// </summary>
-module MiniParser.Parsing.Parselets 
-
-open System.Text.RegularExpressions
+module MiniParser.Parsing.Parselets
 
 open MiniParser.Parsing.Expressions
 open MiniParser.Parsing.Precedence
 open MiniParser.Parsing.Q
 open MiniParser.Parsing.Types
+open MiniParser.Lexing.Types
 //
 let GroupParselet parseExpr token tail =
     let terminal = (fun x -> (tokenValue x) = ")")
@@ -19,7 +18,7 @@ let GroupParselet parseExpr token tail =
     (GroupExpression
         { token = token
           right = expr }, rest)
-
+//
 let PrefixOperatorParselet parseExpr token tail =
     match tail with
     | [] -> failwith "Expected Expr<>"
@@ -29,15 +28,18 @@ let PrefixOperatorParselet parseExpr token tail =
             { token = token
               right = right }, rest)
 //
+let NameParselet _parseExp token tail = (NameExpression { token = token }, tail)
+//
+let NumberParselet parseExp token tail = (NumberExpression { token = token }, tail)
+//
 let PrefixParselet token =
-    match tokenValue token with
-    | x when Regex("^\w+$").IsMatch(x.ToString()) ->
-        fun parseExp token tail -> (NameExpression { token = token }, tail)
-    | x when Regex("^\d+$").IsMatch(x.ToString()) ->
-        fun parseExp token tail -> (NumberExpression { token = token }, tail)
-    | "!" -> PrefixOperatorParselet
-    | "(" -> GroupParselet
-    | x -> failwithf "'%A' Not a Prefix" x
+    match token with
+    | (_, TokenType.NONE, _, _) -> None
+    | (_, TokenType.WORD, _, _) -> Some(NameParselet)
+    | (_, TokenType.NUMBER, _, _) -> Some(NumberParselet)
+    | ("!", _, _, _) -> Some(PrefixOperatorParselet)
+    | ("(", _, _, _) -> Some(GroupParselet)
+    | _ -> None
 //
 let BinaryParselet left parseExpr token tail =
     let (right, rightTail) = parseExpr (Precedence <| tokenValue token) tail
@@ -81,7 +83,7 @@ let CallParselet left parseExpr token tail =
 ///  right asssociative, expression parselet
 let Parselet x =
     match tokenValue x with
-    | "~" -> failwithf "%A not Implemented"
+    // | "~" -> ParseError ("~ is not Implemented", None, None) |> raise
     | "*"
     | "%"
     | "/"
@@ -100,6 +102,6 @@ let Parselet x =
     | "!>"
     | "&&"
     | "||"
-    | "=" -> BinaryParselet
-    | "(" -> CallParselet
-    | _ -> failwithf "%A is Not Implemented" x
+    | "=" -> Some(BinaryParselet)
+    | "(" -> Some(CallParselet)
+    | _ -> None

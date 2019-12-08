@@ -1,23 +1,19 @@
 module MiniParser.Tests.Parsing
 
 open Xunit
-open System.Text.RegularExpressions
+
+open MiniParser.Tests.Common
 open MiniParser.Parsing.Expressions
 open MiniParser.Parsing.Parser
 open MiniParser.Parsing.Types
 open MiniParser.Visiting
-
-let equals a b =
-    if a <> b then failwithf "Expected %A found %A" a b
-
-let clean input = Regex.Replace(input, "\"", "")
-
-let toToken x = (x, "", 0, 0)
+open MiniParser.Parsing.Error
+open MiniParser.Lexing.Types
 
 [<Fact>]
 let Test1() =
     let chars = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
-    let tokens = chars |> List.map toToken
+    let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let precedence = 0
     let (expr, _) = ParseExpr precedence tokens
     tokens
@@ -29,8 +25,15 @@ let Test1() =
 
 [<Fact>]
 let GroupTest() =
-    let chars = [ "("; "a"; "+"; "b"; ")"; "*"; "c" ]
-    let tokens = chars |> List.map toToken
+    let tokens =
+        [ ("(", OP, 0, 0)
+          ("a", WORD, 0, 0)
+          ("+", OP, 0, 0)
+          ("b", WORD, 0, 0)
+          (")", OP, 0, 0)
+          ("*", OP, 0, 0)
+          ("c", WORD, 0, 0) ]
+
     let (expr, _) = ParseExpr 0 tokens
     tokens
     |> List.map tokenValue
@@ -41,8 +44,11 @@ let GroupTest() =
 
 [<Fact>]
 let GroupTest2() =
-    let chars = [ "("; "a"; ")" ]
-    let tokens = chars |> List.map toToken
+    let tokens =
+        [ ("(", OP, 0, 0)
+          ("a", WORD, 0, 0)
+          (")", OP, 0, 0) ]
+
     let (expr, _) = ParseExpr 0 tokens
     tokens
     |> List.map tokenValue
@@ -54,7 +60,7 @@ let GroupTest2() =
 [<Fact>]
 let CallTest() =
     let chars = [ "a"; "("; ")" ]
-    let tokens = chars |> List.map toToken
+    let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
     |> List.map tokenValue
@@ -66,7 +72,7 @@ let CallTest() =
 [<Fact>]
 let CallTest2() =
     let chars = [ "a"; "("; "a"; ")" ]
-    let tokens = chars |> List.map toToken
+    let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
     |> List.map tokenValue
@@ -78,7 +84,7 @@ let CallTest2() =
 [<Fact>]
 let CallTest3() =
     let chars = [ "a"; "("; "a"; ","; "a"; ")" ]
-    let tokens = chars |> List.map toToken
+    let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
     |> List.map tokenValue
@@ -89,8 +95,10 @@ let CallTest3() =
 
 [<Fact>]
 let PrefixExpressionTest() =
-    let (exp, _) = ParseExpr 0 ([ "!"; "a" ] |> List.map toToken)
-    match exp with
+    match [ ("!", OP, 0, 0)
+            ("a", WORD, 0, 0) ]
+          |> ParseExpr 0
+          |> fst with
     | PrefixExpression prefix ->
         tokenValue prefix.token |> equals "!"
         match prefix.right with
@@ -99,37 +107,28 @@ let PrefixExpressionTest() =
     | _ -> failwith "Expected PrefixExpression"
     ()
 
-let fails f =
-    try
-        f() |> ignore
-        None
-    with e -> (Some(e))
-
-
 [<Fact>]
-let PrefixOperatorVsBinaryOperatorFails() =
-    let run() =
+let PrefixFails() =
+    try
         [ "!=" ]
-        |> List.map toToken
+        |> List.map (toTokenOf TokenType.OP)
         |> ParseExpr 0
         |> ignore
-
-    let x = fails run
-    if x = None then failwith "Expected Some(<Exception>)"
-    else ()
+    with
+    | :? ParseError as e when e.Token = Some("!=", TokenType.OP, 0, 0) -> ()        
+    | e -> failwithf "Expected %A instead of %A" ParseError e
 
 [<Fact>]
 let PrefixOperatorVsBinaryOperator() =
-    let tokens = [ "a"; "!="; "b" ] |> List.map toToken
+    let tokens = [ "a"; "!="; "b" ] |> List.map (toTokenOf TokenType.WORD)
     match ParseExpr 0 tokens |> fst with
     | BinaryExpression e -> tokenValue e.token |> equals "!="
     | _ -> failwith "Expected "
     ()
 
 [<Fact>]
-let PrefixOperator() =
-    let tokens = [ "!"; "a" ] |> List.map toToken
-    match ParseExpr 0 tokens |> fst with
+let PrefixOperator() =    
+    match ParseExpr 0 [ ("!", OP, 0, 0); ("a", WORD, 0, 0) ]  |> fst with
     | PrefixExpression e ->
         match e with
         | { token = ("!", _, 0, 0) } -> ()
@@ -138,9 +137,11 @@ let PrefixOperator() =
     ()
 
 [<Fact>]
-let OddStart () =    
-    match [ "!"; "a"; "!="; "b" ] // "!a!=b"
-          |> List.map toToken
+let OddStart() =
+    match [ ("!", OP, 0, 0)
+            ("a", WORD, 0, 0)
+            ("!=", OP, 0, 0)
+            ("b", WORD, 0, 0) ] // "!a!=b"
           |> ParseExpr 0
           |> fst with
     | PrefixExpression e ->

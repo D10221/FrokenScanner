@@ -2,5 +2,5 @@
 
 [<EntryPoint>]
 let main argv =
-    MiniParser.Tests.Parsing.OddStart()
+    MiniParser.Tests.Parsing.PrefixFails()
     0 // fin

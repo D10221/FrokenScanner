@@ -11,12 +11,14 @@
     <Compile Include="src/Lexing.fs"/>
     <Compile Include="src/Parsing/Expressions.fs"/>
     <Compile Include="src/Parsing/Types.fs"/>
+    <Compile Include="src/Parsing/Error.fs"/>
     <Compile Include="src/Parsing/Precedence.fs"/>
     <Compile Include="src/Parsing/Q.fs"/>
     <Compile Include="src/Parsing/Parselets.fs"/>
     <Compile Include="src/Parsing/Parser.fs"/>
     <Compile Include="src/Visiting.fs"/>
     <Compile Include="src/Parse.fs"/>
+    <Compile Include="Tests/Common.fs"/>
     <Compile Include="Tests/Lexing.fs" />
     <Compile Include="Tests/Parse.fs"/>
     <Compile Include="Tests/Parsing.fs"/>

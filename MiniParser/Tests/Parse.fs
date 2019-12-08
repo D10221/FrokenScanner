@@ -5,13 +5,7 @@ open MiniParser.Parsing.Expressions
 open MiniParser.Visiting
 open MiniParser.Parse
 open MiniParser.Parsing.Types
-open System.Text.RegularExpressions
-
-let equals a b =
-    if a <> b then failwithf "Expected %A found %A" a b
-
-let clean input = Regex.Replace(input, "\"", "")
-
+open MiniParser.Tests.Common
 
 [<Fact>]
 let Test1() =

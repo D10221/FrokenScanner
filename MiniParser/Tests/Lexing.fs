@@ -3,20 +3,7 @@ module MiniParser.Tests.Lexing
 open Xunit
 open MiniParser.Lexing.Scanner
 open MiniParser.Lexing.Types
-
-let equals (a: 'a) (b: 'a) =
-    if a <> b then raise (System.Exception(sprintf "expected %A instead of %A" a b))
-    else ()
-
-let allEqual (xxx: 'a list) (yyy: 'a list) =
-    if xxx.Length <> yyy.Length then failwithf "%A %A differ in Length" xxx yyy
-    for i = 0 to xxx.Length - 1 do
-        try
-            let x = xxx.[i]
-            let y = yyy.[i]
-            equals x y
-        with e -> failwithf "index: '%i' %s" i e.Message
-    ()
+open MiniParser.Tests.Common
 
 let lineNos = List.map (fun (_, _, lineNo, _) -> lineNo)
 
@@ -53,7 +40,7 @@ let Test4() =
 [<Fact>]
 let Test5() =
     let result = Scan [ '1'; '1'; 'a'; 'a' ]
-    equals ("11", NO, 0, 0) result.[0]
+    equals ("11", NUMBER, 0, 0) result.[0]
     equals ("aa", WORD, 0, 2) result.[1]
 
 [<Fact>]
@@ -71,13 +58,13 @@ let Test7() =
 [<Fact>]
 let Test8() =
     let result = Scan [ '1'; '.'; '1' ]
-    equals ("1.1", NO, 0, 0) result.[0]
+    equals ("1.1", NUMBER, 0, 0) result.[0]
 
 [<Fact>]
 let Test9() =
     let tokens = Scan [ '.'; '1' ]
     let (_, x, _, _) = tokens.Head
-    equals x NO
+    equals x NUMBER
 
 [<Fact>]
 let Test10() =

@@ -1,9 +1,10 @@
 module MiniParser.Lexing
 module Types = 
     type TokenType =
+        | NONE
         | OP 
         | WORD 
-        | NO 
+        | NUMBER
         | SPACE 
         | NLINE 
 
@@ -108,13 +109,13 @@ module Scanner =
                 | x when x = '.' && peek isDigit tail ->
                     (x, tail)
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
-                    ||> append NO
+                    ||> append NUMBER
                     ||> loop
                 | x when x |> isOperator -> ((x.ToString(), OP), tail) ||> loop
                 | x when x |> isDigit ->
                     (x, tail)
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
-                    ||> append NO
+                    ||> append NUMBER
                     ||> loop
                 | x when x |> isWord ->
                     (x, tail)
