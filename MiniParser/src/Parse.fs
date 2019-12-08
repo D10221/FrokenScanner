@@ -6,7 +6,7 @@ open MiniParser.Lexing.Types
 
 let private scan input =
         [ for (token, tokenType, lineNo, colNo) in Scan input do
-            if tokenType <> TokenType.SPACE && tokenType <> TokenType.NLINE then yield (token, tokenType, lineNo, colNo) ]
+            if tokenType <> SPACE && tokenType <> NLINE then yield (token, tokenType, lineNo, colNo) ]
 
 let private precedence = 0
 
