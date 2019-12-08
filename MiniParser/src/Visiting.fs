@@ -25,8 +25,7 @@ let rec Visit expr =
         let left = Visit (e.left)
         let right = Visit (e.right)
         sprintf "(%s %A %s)" left (tokenValue e.token) right
-    | PrefixExpression e -> sprintf "%A (%A)" (tokenValue e.token) (Visit e.right)
-    | EmptyExpression _ -> ""
+    | PrefixExpression e -> sprintf "%A (%A)" (tokenValue e.token) (Visit e.right)    
 //
 let rec VisitMany exprs =
     match exprs with

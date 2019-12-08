@@ -1,16 +1,12 @@
 module MiniParser.Parsing.Expressions
 
 type Expr<'a> =
-    | NameExpression of NameExpression<'a>
-    | NumberExpression of NumberExpression<'a>
-    | GroupExpression of GroupExpression<'a>
     | BinaryExpression of BynaryExpression<'a>
     | CallExpression of CallExpression<'a>
-    | EmptyExpression of EmptyExpression<'a>
+    | GroupExpression of GroupExpression<'a>
+    | NameExpression of NameExpression<'a>
+    | NumberExpression of NumberExpression<'a>
     | PrefixExpression of PrefixExpression<'a>
-
-and EmptyExpression<'a> =
-    { token: 'a }
 //
 and BynaryExpression<'a> =
     { token: 'a
