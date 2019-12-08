@@ -1,4 +1,11 @@
 module MiniParser.Lexing
+module Types = 
+    type TokenType =
+        | OP 
+        | WORD 
+        | NO 
+        | SPACE 
+        | NLINE 
 
 module Tests =
 
@@ -55,6 +62,7 @@ module Scanner =
 
     open Tests
     open Scanlets
+    open Types
 
     let private concat = List.fold (fun a b -> a + b.ToString()) ""
 
@@ -64,14 +72,7 @@ module Scanner =
         | next :: _ ->
             match next with
             | y when isMatch y -> true
-            | _ -> false
-    // ...
-    let private getThird =
-        function
-        | [] -> 0
-        | prev ->
-            let (_, _, c, _, _) = List.head prev
-            c
+            | _ -> false   
     /// <summary>
     /// Scan char list and split on
     /// Symbol,
@@ -84,7 +85,7 @@ module Scanner =
         let rec scan lineNo colNo input =
             // recurse
             let loop (token, tokenType) tail =
-                let isLine = tokenType = "newline"
+                let isLine = tokenType = TokenType.NLINE
 
                 let nextLineNo =
                     lineNo + (if isLine then 1
@@ -107,34 +108,34 @@ module Scanner =
                 | x when x = '.' && peek isDigit tail ->
                     (x, tail)
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
-                    ||> append "number"
+                    ||> append NO
                     ||> loop
-                | x when x |> isOperator -> ((x.ToString(), "symbol"), tail) ||> loop
+                | x when x |> isOperator -> ((x.ToString(), OP), tail) ||> loop
                 | x when x |> isDigit ->
                     (x, tail)
                     ||> takeWhile (fun c -> isDigit c || '.' = c)
-                    ||> append "number"
+                    ||> append NO
                     ||> loop
                 | x when x |> isWord ->
                     (x, tail)
                     ||> takeWhile isWordOrDigit
-                    ||> append "word"
+                    ||> append WORD
                     ||> loop
                 | x when x |> isSpace ->
                     (x, tail)
                     ||> takeWhile isSpace
-                    ||> append "space"
+                    ||> append SPACE
                     ||> loop
                 // ... newLine
-                | '\n' as x -> ((x.ToString(), "newline"), tail) ||> loop
+                | '\n' as x -> ((x.ToString(), NLINE ), tail) ||> loop
                 // No match if next is not '\n'
                 | '\r' as x when tail |> peek (fun c -> c = '\n') ->
                     (x, tail)
                     ||> takeNextIfMatch '\n'
-                    ||> append "newline"
+                    ||> append NLINE
                     ||> loop
                 // let it go thru until we decide what to do with it
-                | '\r' as x -> ((x.ToString(), "newline"), tail) ||> loop
+                | '\r' as x -> ((x.ToString(), NLINE), tail) ||> loop
                 // ...
                 | x -> sprintf "Operator '%A' is Not Implemented" x |> failwith
         scan 0 0 chars

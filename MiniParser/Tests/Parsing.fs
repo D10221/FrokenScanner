@@ -14,16 +14,6 @@ let clean input = Regex.Replace(input, "\"", "")
 
 let toToken x = (x, "", 0, 0)
 
-
-
-
-
-
-
-
-
-
-
 [<Fact>]
 let Test1() =
     let chars = [ "a"; "*"; "b"; "+"; "c"; "*"; "d"; "="; "e"; "/"; "f"; "-"; "g"; "/"; "h" ]
