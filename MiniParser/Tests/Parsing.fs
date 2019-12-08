@@ -123,8 +123,7 @@ let PrefixOperatorVsBinaryOperator() =
     let tokens = [ "a"; "!="; "b" ] |> List.map (toTokenOf TokenType.WORD)
     match ParseExpr 0 tokens |> fst with
     | BinaryExpression e -> tokenValue e.token |> equals "!="
-    | _ -> failwith "Expected "
-    ()
+    | _ -> failwith "Expected "    
 
 [<Fact>]
 let PrefixOperator() =    
@@ -134,7 +133,6 @@ let PrefixOperator() =
         | { token = ("!", _, 0, 0) } -> ()
         | x -> failwithf "Expected  (\"!\", _, 0, 0) instead of %A" x
     | e -> failwithf "Expected %A instead of %A" PrefixExpression e
-    ()
 
 [<Fact>]
 let OddStart() =
