@@ -22,7 +22,6 @@
     <Compile Include="src/Parse.fs"/>
     <Compile Include="Tests/Common.fs"/>
     <Compile Include="Tests/Lexing.fs" />
-    <Compile Include="Tests/Parse.fs"/>
     <Compile Include="Tests/Parsing.fs"/>
     <Compile Include="src/Program.fs" />
   </ItemGroup>

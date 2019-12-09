@@ -8,11 +8,11 @@ open MiniParser.Expressions
 open Precedence
 open Q
 
+let private eq x b = x = b
 //
-let GroupParselet parseExpr token tail =
-    let terminal = (fun x -> (TokenValue x) = ")")
-    //
-    let (queue, rest) = collect terminal tail
+let GroupParselet terminal parseExpr token tail =    
+    let isTerminal = (TokenValue >> eq terminal)
+    let (queue, rest) = collect isTerminal tail
     let (expr, unprocessed) = parseExpr 0 queue
     assert (List.isEmpty unprocessed)
     (GroupExpression
@@ -38,7 +38,7 @@ let PrefixParselet token =
     | (_, TokenType.WORD, _, _) -> Some(NameParselet)
     | (_, TokenType.NUMBER, _, _) -> Some(NumberParselet)
     | ("!", _, _, _) -> Some(PrefixOperatorParselet)
-    | ("(", _, _, _) -> Some(GroupParselet)
+    | ("(", _, _, _) -> Some(GroupParselet ")" )
     | _ -> None
 //
 let BinaryParselet left parseExpr token tail =
@@ -52,8 +52,8 @@ let BinaryParselet left parseExpr token tail =
     (expr, rightTail)
 //
 let CallParselet left parseExpr token tail =
-    let isTerminal t = (TokenValue t) = ")"
-    let isSeparator t = (TokenValue t) = ","
+    let isTerminal = TokenValue >> eq ")"
+    let isSeparator = TokenValue >> eq ","
     // ... Can be empty
     if peek isTerminal tail then
         (CallExpression

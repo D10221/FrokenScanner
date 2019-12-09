@@ -9,7 +9,7 @@ let rec ParseExpr precedence tokens =
 
     let parseInfix left infix infixTail =
         match (Parselet infix) with
-        | None -> failwithf "%A is Not Implemented!" infix
+        | None -> InfixNotImplemented infix |> raise
         | Some(parselet) ->
             let parse = parselet left //get right parselet
             parse ParseExpr infix infixTail
@@ -40,7 +40,7 @@ let rec ParseExpr precedence tokens =
             let prefixParselet = PrefixParselet token // get left parselet
             match prefixParselet with
             | None -> 
-                ParseError(sprintf "'%A' Not a prefix" (TokenValue token), Some(token), None) |> raise
+                token |> PrefixNotImplemented |> raise
             | Some(parse) -> 
                 parse ParseExpr token tail ||> doWhile isPrecedenceLower parseInfix
 
