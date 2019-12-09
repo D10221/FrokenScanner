@@ -2,7 +2,7 @@ module MiniParser.Tests.MiniParser
 
 open Xunit
 open MiniParser.Token
-open MiniParser.Parsing.Expressions
+open MiniParser.Expressions
 open MiniParser.Visiting
 open MiniParser.Parse
 open MiniParser.Tests.Common

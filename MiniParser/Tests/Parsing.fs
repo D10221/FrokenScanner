@@ -3,7 +3,7 @@ module MiniParser.Tests.Parsing
 open Xunit
 
 open MiniParser.Tests.Common
-open MiniParser.Parsing.Expressions
+open MiniParser.Expressions
 open MiniParser.Parsing.Parser
 open MiniParser.Visiting
 open MiniParser.Parsing.Error

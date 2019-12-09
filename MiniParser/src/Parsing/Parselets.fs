@@ -4,9 +4,9 @@
 module MiniParser.Parsing.Parselets
 
 open MiniParser.Token
-open MiniParser.Parsing.Expressions
-open MiniParser.Parsing.Precedence
-open MiniParser.Parsing.Q
+open MiniParser.Expressions
+open Precedence
+open Q
 
 //
 let GroupParselet parseExpr token tail =

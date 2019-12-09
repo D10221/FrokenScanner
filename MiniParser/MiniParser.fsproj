@@ -11,7 +11,7 @@
     <Compile Include="src/Token.fs"/>
     <Compile Include="src/Lexing/Scanlets.fs"/>
     <Compile Include="src/Lexing/Scanner.fs"/>
-    <Compile Include="src/Parsing/Expressions.fs"/>
+    <Compile Include="src/Expressions.fs"/>
     <Compile Include="src/Parsing/Types.fs"/>
     <Compile Include="src/Parsing/Error.fs"/>
     <Compile Include="src/Parsing/Precedence.fs"/>

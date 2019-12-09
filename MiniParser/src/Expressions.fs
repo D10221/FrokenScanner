@@ -1,4 +1,4 @@
-module MiniParser.Parsing.Expressions
+module MiniParser.Expressions
 
 type Expr<'a> =
     | BinaryExpression of BynaryExpression<'a>

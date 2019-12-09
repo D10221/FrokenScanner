@@ -1,7 +1,7 @@
 
 module MiniParser.Parsing.Types
 
-open MiniParser.Parsing.Expressions
+open MiniParser.Expressions
 //
 type ParseExp<'a> = 'a list -> int -> (Expr<'a> * 'a list)
 //
