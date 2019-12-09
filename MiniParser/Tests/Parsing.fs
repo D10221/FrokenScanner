@@ -102,22 +102,22 @@ let GroupTest4() =
         match e.Right with
         | BinaryExpression b ->
             match b.Left with
-            | NameExpression name -> 
-                match name.Token with 
-                | ("a", _, 0, 0 ) -> ()
+            | NameExpression name ->
+                match name.Token with
+                | ("a", _, 0, 0) -> ()
                 | t -> failwithf "Expected %A instead of %A" "a" t
             | e -> failwithf "Expected %A instead of %A" NameExpression e
             match b.Right with
-            | NameExpression name -> 
-                match name.Token with 
-                | ("a", _, 0, 0 ) -> ()
+            | NameExpression name ->
+                match name.Token with
+                | ("a", _, 0, 0) -> ()
                 | t -> failwithf "Expected %A instead of %A" "a" t
             | e -> failwithf "Expected %A instead of %A" NameExpression e
         | e -> failwithf "Expected %A instead of %A" BinaryExpression e
     | e -> failwithf "Expected %A instead of %A" GroupExpression e
 
 [<Fact>]
-let GroupTest5() =    
+let GroupTest5() =
     let tokens =
         [ ("(", OP, 0, 0)
           ("a", WORD, 0, 0)
@@ -133,7 +133,7 @@ let GroupTest5() =
     | e -> failwithf "Expected %A instead of %A" ParseError e
 
 [<Fact>]
-let GroupTest6() =    
+let GroupTest6() =
     let tokens =
         [ ("(", OP, 0, 0)
           ("a", WORD, 0, 0)
@@ -267,3 +267,31 @@ let ParseStringTest() =
         | _ -> failwith "expected b"
 
     | _ -> failwith "Expected BinaryExpression")
+
+
+let expectString expected = function
+    | StringExpression e ->
+        match e.Token with
+        | ("\'", _, _, _) ->
+            match e.Right
+                  |> List.map TokenValue
+                  |> List.fold (+) "" with
+            | x when x = expected -> ()
+            | x -> failwithf "Expected %A instead of %A" expected x
+        | t -> failwithf "Expected %A instead of %A" "\'" t
+    | e -> failwithf "Expected %A instead of %A" StringExpression e
+
+[<Fact>]
+let Strings() =
+    [ "\'"; "a"; "\'" ]
+          |> List.map (toTokenOf NONE)
+          |> ParseExpr 0
+          |> fst 
+          |> expectString "a"
+[<Fact>]
+let Strings2() =
+    [ "\'"; "a";"*";"-";"+ "; "\'" ]
+          |> List.map (toTokenOf NONE)
+          |> ParseExpr 0
+          |> fst 
+          |> expectString "a*-+ "

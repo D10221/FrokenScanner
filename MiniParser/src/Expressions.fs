@@ -7,6 +7,7 @@ type Expr<'a> =
     | NameExpression of NameExpression<'a>
     | NumberExpression of NumberExpression<'a>
     | PrefixExpression of PrefixExpression<'a>
+    | StringExpression of StringExpression<'a>
 //
 and BynaryExpression<'a> =
     { Token: 'a
@@ -22,6 +23,10 @@ and NameExpression<'a> =
 and GroupExpression<'a> =
     { Token: 'a
       Right: Expr<'a> }
+//
+and StringExpression<'a> =
+    { Token: 'a
+      Right: 'a list }      
 //
 and CallExpression<'a> =
     { Token: 'a
