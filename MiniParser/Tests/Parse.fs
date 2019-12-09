@@ -20,14 +20,14 @@ let Test1() =
 
     match x with
     | BinaryExpression e ->
-        tokenValue e.token |> equals  "*"
+        tokenValue e.Token |> equals  "*"
 
-        match e.left with
-        | NameExpression name -> tokenValue name.token |> equals "a"
+        match e.Left with
+        | NameExpression name -> tokenValue name.Token |> equals "a"
         | _ -> failwith "expected a"
 
-        match e.right with
-        | NameExpression name -> tokenValue name.token |> equals "b"
+        match e.Right with
+        | NameExpression name -> tokenValue name.Token |> equals "b"
         | _ -> failwith "expected b"
 
     | _ -> failwith "Expected BinaryExpression")

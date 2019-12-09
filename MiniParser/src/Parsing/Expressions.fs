@@ -9,25 +9,25 @@ type Expr<'a> =
     | PrefixExpression of PrefixExpression<'a>
 //
 and BynaryExpression<'a> =
-    { token: 'a
-      left: Expr<'a>
-      right: Expr<'a> }
+    { Token: 'a
+      Left: Expr<'a>
+      Right: Expr<'a> }
 //
 and NumberExpression<'a> =
-    { token: 'a }
+    { Token: 'a }
 //
 and NameExpression<'a> =
-    { token: 'a }
+    { Token: 'a }
 //
 and GroupExpression<'a> =
-    { token: 'a
-      right: Expr<'a> }
+    { Token: 'a
+      Right: Expr<'a> }
 //
 and CallExpression<'a> =
-    { token: 'a
-      left: Expr<'a>
-      right: Expr<'a> list }
+    { Token: 'a
+      Left: Expr<'a>
+      Right: Expr<'a> list }
 //
 and PrefixExpression<'a> =
-    { token: 'a
-      right: Expr<'a> }
+    { Token: 'a
+      Right: Expr<'a> }

@@ -16,8 +16,8 @@ let GroupParselet parseExpr token tail =
     let (expr, unprocessed) = parseExpr 0 queue
     assert (List.isEmpty unprocessed)
     (GroupExpression
-        { token = token
-          right = expr }, rest)
+        { Token = token
+          Right = expr }, rest)
 //
 let PrefixOperatorParselet parseExpr token tail =
     match tail with
@@ -25,12 +25,12 @@ let PrefixOperatorParselet parseExpr token tail =
     | _ ->
         let (right, rest) = parseExpr 0 tail
         (PrefixExpression
-            { token = token
-              right = right }, rest)
+            { Token = token
+              Right = right }, rest)
 //
-let NameParselet _parseExp token tail = (NameExpression { token = token }, tail)
+let NameParselet _parseExp token tail = (NameExpression { Token = token }, tail)
 //
-let NumberParselet parseExp token tail = (NumberExpression { token = token }, tail)
+let NumberParselet parseExp token tail = (NumberExpression { Token = token }, tail)
 //
 let PrefixParselet token =
     match token with
@@ -46,9 +46,9 @@ let BinaryParselet left parseExpr token tail =
 
     let expr =
         BinaryExpression
-            { token = token
-              left = left
-              right = right }
+            { Token = token
+              Left = left
+              Right = right }
     (expr, rightTail)
 //
 let CallParselet left parseExpr token tail =
@@ -57,9 +57,9 @@ let CallParselet left parseExpr token tail =
     // ... Can be empty
     if peek isTerminal tail then
         (CallExpression
-            { token = token
-              left = left
-              right = [] }, List.tail tail)
+            { Token = token
+              Left = left
+              Right = [] }, List.tail tail)
     else
         let (queue, rest) = collect isTerminal tail
         // parse a,b,c as 1 then b then c
@@ -74,9 +74,9 @@ let CallParselet left parseExpr token tail =
 
         let expr =
             CallExpression
-                { token = token
-                  left = left
-                  right = many }
+                { Token = token
+                  Left = left
+                  Right = many }
 
         (expr, rest)
 

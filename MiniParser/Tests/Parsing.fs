@@ -100,9 +100,9 @@ let PrefixExpressionTest() =
           |> ParseExpr 0
           |> fst with
     | PrefixExpression prefix ->
-        tokenValue prefix.token |> equals "!"
-        match prefix.right with
-        | NameExpression name -> tokenValue name.token |> equals "a"
+        tokenValue prefix.Token |> equals "!"
+        match prefix.Right with
+        | NameExpression name -> tokenValue name.Token |> equals "a"
         | _ -> failwith "Expected NameExpression"
     | _ -> failwith "Expected PrefixExpression"
     ()
@@ -122,7 +122,7 @@ let PrefixFails() =
 let PrefixOperatorVsBinaryOperator() =
     let tokens = [ "a"; "!="; "b" ] |> List.map (toTokenOf TokenType.WORD)
     match ParseExpr 0 tokens |> fst with
-    | BinaryExpression e -> tokenValue e.token |> equals "!="
+    | BinaryExpression e -> tokenValue e.Token |> equals "!="
     | _ -> failwith "Expected "    
 
 [<Fact>]
@@ -130,7 +130,7 @@ let PrefixOperator() =
     match ParseExpr 0 [ ("!", OP, 0, 0); ("a", WORD, 0, 0) ]  |> fst with
     | PrefixExpression e ->
         match e with
-        | { token = ("!", _, 0, 0) } -> ()
+        | { Token = ("!", _, 0, 0) } -> ()
         | x -> failwithf "Expected  (\"!\", _, 0, 0) instead of %A" x
     | e -> failwithf "Expected %A instead of %A" PrefixExpression e
 
@@ -144,6 +144,6 @@ let OddStart() =
           |> fst with
     | PrefixExpression e ->
         match e with
-        | { token = ("!", _, _, _) } -> ()
-        | token -> failwithf "Expected %A instead of %A" ({ token = ("!") }) token
+        | { Token = ("!", _, _, _) } -> ()
+        | token -> failwithf "Expected %A instead of %A" ({ Token = ("!") }) token
     | e -> failwithf "Expected %A instead of %A" PrefixExpression e
