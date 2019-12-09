@@ -5,10 +5,9 @@ open Xunit
 open MiniParser.Tests.Common
 open MiniParser.Parsing.Expressions
 open MiniParser.Parsing.Parser
-open MiniParser.Parsing.Types
 open MiniParser.Visiting
 open MiniParser.Parsing.Error
-open MiniParser.Lexing.Types
+open MiniParser.Token
 
 [<Fact>]
 let Test1() =
@@ -17,7 +16,7 @@ let Test1() =
     let precedence = 0
     let (expr, _) = ParseExpr precedence tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -36,7 +35,7 @@ let GroupTest() =
 
     let (expr, _) = ParseExpr 0 tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -51,7 +50,7 @@ let GroupTest2() =
 
     let (expr, _) = ParseExpr 0 tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -63,7 +62,7 @@ let CallTest() =
     let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -75,7 +74,7 @@ let CallTest2() =
     let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -87,7 +86,7 @@ let CallTest3() =
     let tokens = chars |> List.map (toTokenOf TokenType.WORD)
     let (expr, _) = ParseExpr 0 tokens
     tokens
-    |> List.map tokenValue
+    |> List.map TokenValue
     |> List.fold (+) "",
     Visit expr
     |> clean
@@ -100,9 +99,9 @@ let PrefixExpressionTest() =
           |> ParseExpr 0
           |> fst with
     | PrefixExpression prefix ->
-        tokenValue prefix.Token |> equals "!"
+        TokenValue prefix.Token |> equals "!"
         match prefix.Right with
-        | NameExpression name -> tokenValue name.Token |> equals "a"
+        | NameExpression name -> TokenValue name.Token |> equals "a"
         | _ -> failwith "Expected NameExpression"
     | _ -> failwith "Expected PrefixExpression"
     ()
@@ -122,7 +121,7 @@ let PrefixFails() =
 let PrefixOperatorVsBinaryOperator() =
     let tokens = [ "a"; "!="; "b" ] |> List.map (toTokenOf TokenType.WORD)
     match ParseExpr 0 tokens |> fst with
-    | BinaryExpression e -> tokenValue e.Token |> equals "!="
+    | BinaryExpression e -> TokenValue e.Token |> equals "!="
     | _ -> failwith "Expected "    
 
 [<Fact>]

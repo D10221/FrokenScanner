@@ -9,4 +9,3 @@ type Parselet<'a> = ParseExp<'a> -> 'a -> 'a list -> (Expr<'a> * 'a list)
 //
 type InfixParselet<'a> = Expr<'a> -> Parselet<'a>
 
-let tokenValue (tokenValue, _, _, _) = tokenValue

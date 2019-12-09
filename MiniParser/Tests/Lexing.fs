@@ -1,8 +1,8 @@
 module MiniParser.Tests.Lexing
 
 open Xunit
+open MiniParser.Token
 open MiniParser.Lexing.Scanner
-open MiniParser.Lexing.Types
 open MiniParser.Tests.Common
 
 let lineNos = List.map (fun (_, _, lineNo, _) -> lineNo)

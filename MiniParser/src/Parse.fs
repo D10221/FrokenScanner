@@ -1,8 +1,8 @@
 module MiniParser.Parse
     
-open MiniParser.Parsing.Parser
+open MiniParser.Token
 open MiniParser.Lexing.Scanner
-open MiniParser.Lexing.Types
+open MiniParser.Parsing.Parser
 
 let private scan input =
         [ for (token, tokenType, lineNo, colNo) in Scan input do

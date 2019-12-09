@@ -1,7 +1,7 @@
 module MiniParser.Tests.Common
 
 open System.Text.RegularExpressions
-open MiniParser.Lexing.Types 
+open MiniParser.Token
 
 let equals a b =
     if a <> b then failwithf "Expected %A found %A" a b

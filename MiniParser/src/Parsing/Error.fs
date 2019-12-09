@@ -1,6 +1,6 @@
 module MiniParser.Parsing.Error
 
-open MiniParser.Lexing.Types
+open MiniParser.Token
 
 let private orNull =
     function

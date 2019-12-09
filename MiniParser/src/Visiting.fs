@@ -1,7 +1,7 @@
 module MiniParser.Visiting 
 
+open MiniParser.Token
 open Parsing.Expressions
-open Parsing.Types
 
 let private reduceOrDefault f def x =
     match x with
@@ -10,8 +10,8 @@ let private reduceOrDefault f def x =
 //
 let rec Visit expr =
     match expr with
-    | NameExpression e -> sprintf "%A" (tokenValue e.Token)
-    | NumberExpression e -> sprintf "%A" (tokenValue e.Token)
+    | NameExpression e -> sprintf "%A" (TokenValue e.Token)
+    | NumberExpression e -> sprintf "%A" (TokenValue e.Token)
     | GroupExpression e -> sprintf "(%A)" (Visit e.Right)
     | CallExpression e ->
         let left = Visit (e.Left)
@@ -20,12 +20,12 @@ let rec Visit expr =
             (e.Right)
             |> List.map Visit
             |> reduceOrDefault (fun a b -> a + "," + b) ""
-        sprintf "(%s%A%s))" left (tokenValue e.Token) right
+        sprintf "(%s%A%s))" left (TokenValue e.Token) right
     | BinaryExpression e ->
         let left = Visit (e.Left)
         let right = Visit (e.Right)
-        sprintf "(%s %A %s)" left (tokenValue e.Token) right
-    | PrefixExpression e -> sprintf "%A (%A)" (tokenValue e.Token) (Visit e.Right)    
+        sprintf "(%s %A %s)" left (TokenValue e.Token) right
+    | PrefixExpression e -> sprintf "%A (%A)" (TokenValue e.Token) (Visit e.Right)    
 //
 let rec VisitMany exprs =
     match exprs with

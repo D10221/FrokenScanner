@@ -3,14 +3,14 @@
 /// </summary>
 module MiniParser.Parsing.Parselets
 
+open MiniParser.Token
 open MiniParser.Parsing.Expressions
 open MiniParser.Parsing.Precedence
 open MiniParser.Parsing.Q
-open MiniParser.Parsing.Types
-open MiniParser.Lexing.Types
+
 //
 let GroupParselet parseExpr token tail =
-    let terminal = (fun x -> (tokenValue x) = ")")
+    let terminal = (fun x -> (TokenValue x) = ")")
     //
     let (queue, rest) = collect terminal tail
     let (expr, unprocessed) = parseExpr 0 queue
@@ -42,7 +42,7 @@ let PrefixParselet token =
     | _ -> None
 //
 let BinaryParselet left parseExpr token tail =
-    let (right, rightTail) = parseExpr (Precedence <| tokenValue token) tail
+    let (right, rightTail) = parseExpr (Precedence <| TokenValue token) tail
 
     let expr =
         BinaryExpression
@@ -52,8 +52,8 @@ let BinaryParselet left parseExpr token tail =
     (expr, rightTail)
 //
 let CallParselet left parseExpr token tail =
-    let isTerminal t = (tokenValue t) = ")"
-    let isSeparator t = (tokenValue t) = ","
+    let isTerminal t = (TokenValue t) = ")"
+    let isSeparator t = (TokenValue t) = ","
     // ... Can be empty
     if peek isTerminal tail then
         (CallExpression
@@ -82,7 +82,7 @@ let CallParselet left parseExpr token tail =
 
 ///  right asssociative, expression parselet
 let Parselet x =
-    match tokenValue x with
+    match TokenValue x with
     // | "~" -> ParseError ("~ is not Implemented", None, None) |> raise
     | "*"
     | "%"

@@ -1,9 +1,9 @@
 module MiniParser.Parsing.Parser
 
-open MiniParser.Parsing.Parselets
-open MiniParser.Parsing.Precedence
-open MiniParser.Parsing.Types
-open MiniParser.Parsing.Error
+open MiniParser.Token
+open Parselets
+open Precedence
+open Error
 //
 let rec ParseExpr precedence tokens =
 
@@ -16,7 +16,7 @@ let rec ParseExpr precedence tokens =
 
     let isPrecedenceLower token =
         token
-        |> tokenValue
+        |> TokenValue
         |> Precedence
         >= precedence
 
@@ -40,7 +40,7 @@ let rec ParseExpr precedence tokens =
             let prefixParselet = PrefixParselet token // get left parselet
             match prefixParselet with
             | None -> 
-                ParseError(sprintf "'%A' Not a prefix" (tokenValue token), Some(token), None) |> raise
+                ParseError(sprintf "'%A' Not a prefix" (TokenValue token), Some(token), None) |> raise
             | Some(parse) -> 
                 parse ParseExpr token tail ||> doWhile isPrecedenceLower parseInfix
 
