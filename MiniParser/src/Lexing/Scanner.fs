@@ -1,9 +1,11 @@
-module MiniParser.Lexing.Scanner 
+module MiniParser.Lexing.Scanner
+
 open MiniParser.Token
 open Scanlets
 open System.Text.RegularExpressions
 
-let operators = "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?"
+let operators =
+    [ '`'; '-'; '='; '~'; '!'; '@'; '#'; '$'; '%'; '^'; '&'; '*'; '('; ')'; '_'; '+'; '['; ']'; '\\'; '{'; '}'; '|'; ';'; '''; ':'; '"'; ','; '.'; '/'; '<'; '>'; '?' ]
 
 let private any list x =
     list
@@ -12,18 +14,16 @@ let private any list x =
 
 let isSpace = [ ' '; '\t' ] |> any
 
-let isOperator =
-    operators.ToCharArray()
-    |> Array.toList
-    |> any
+let isOperator = operators |> any
 
-let isRegexMatch pattern = Regex(pattern).IsMatch
+let RegexMatch pattern = Regex(pattern).IsMatch
 
-let isWord c = c.ToString() |> isRegexMatch "[a-zA-Z_$#@]"
+let isWord c = c.ToString() |> RegexMatch "[a-zA-Z_$#@]"
 
-let isDigit c = c.ToString() |> isRegexMatch "\d"
+let isDigit c = c.ToString() |> RegexMatch "\d"
 
 let isWordOrDigit x = isWord x || isDigit x
+
 let private concat = List.fold (fun a b -> a + b.ToString()) ""
 
 let peek isMatch tail =
@@ -32,7 +32,7 @@ let peek isMatch tail =
     | next :: _ ->
         match next with
         | y when isMatch y -> true
-        | _ -> false   
+        | _ -> false
 /// <summary>
 /// Scan char list and split on
 /// Symbol,
@@ -87,7 +87,7 @@ let Scan chars =
                 ||> append SPACE
                 ||> loop
             // ... newLine
-            | '\n' as x -> ((x.ToString(), NLINE ), tail) ||> loop
+            | '\n' as x -> ((x.ToString(), NLINE), tail) ||> loop
             // No match if next is not '\n'
             | '\r' as x when tail |> peek (fun c -> c = '\n') ->
                 (x, tail)
